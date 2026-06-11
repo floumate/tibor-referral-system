@@ -8,6 +8,13 @@
 //   SUPABASE_SECRET_KEY  (sb_secret_... — server-only, NIKAD u frontend)
 //   WEBINAR_LANDING_URL  (fallback landing URL za share link)
 //   DASHBOARD_BASE_URL   (npr. https://tibor-referral-system.vercel.app)
+//
+// ENV VARS OPCIONO — GHL email sa linkom (ako nisu postavljene, preskače se):
+//   GHL_API_TOKEN        (Private Integration token, pit-...)
+//   GHL_LOCATION_ID      (GHL Settings → Business Profile → Location ID)
+//   GHL_FIELD_SHARE      (unique key custom polja za share URL, npr. contact.referral_share_url)
+//   GHL_FIELD_DASHBOARD  (unique key custom polja za dashboard URL)
+//   GHL_TAG              (tag koji okida workflow; default: referral-link-ready)
 
 export const config = { runtime: 'nodejs' };
 
@@ -69,6 +76,16 @@ export default async function handler(req, res) {
   const dashboardUrl = `${process.env.DASHBOARD_BASE_URL}/?t=${signup.dashboard_token}`;
   const shareUrl = `${webinarUrl}${webinarUrl.includes('?') ? '&' : '?'}r=${signup.ref_code}`;
 
+  // GHL sync: upiši linkove u kontakt + tag koji okida email workflow.
+  // Samo za nove prijave (da se email ne šalje ponovo), best-effort.
+  if (signup.is_new) {
+    try {
+      await syncGhl({ email, firstName, lastName, refCode: signup.ref_code, shareUrl, dashboardUrl });
+    } catch (err) {
+      console.error('ghl sync failed', err);
+    }
+  }
+
   return res.status(200).json({
     ok: true,
     refCode: signup.ref_code,
@@ -112,6 +129,62 @@ async function createSignup({ email, firstName, lastName, ref }) {
     is_new: row.out_is_new,
     referred_by: row.out_referred_by,
   };
+}
+
+// GHL (LeadConnector) API v2: upsert kontakta sa custom poljima + tag.
+// Tag okida GHL workflow koji šalje email sa referral linkovima.
+async function syncGhl({ email, firstName, lastName, refCode, shareUrl, dashboardUrl }) {
+  const token = process.env.GHL_API_TOKEN;
+  const locationId = process.env.GHL_LOCATION_ID;
+  if (!token || !locationId) return; // GHL integracija nije podešena — preskoči
+
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    Version: '2021-07-28',
+    'Content-Type': 'application/json',
+  };
+
+  // Unique key polja iz GHL-a, prihvata i sa i bez "contact." prefiksa
+  const fieldKey = (v) => (v || '').replace(/^contact\./, '');
+  const customFields = [];
+  if (process.env.GHL_FIELD_SHARE) {
+    customFields.push({ key: fieldKey(process.env.GHL_FIELD_SHARE), field_value: shareUrl });
+  }
+  if (process.env.GHL_FIELD_DASHBOARD) {
+    customFields.push({ key: fieldKey(process.env.GHL_FIELD_DASHBOARD), field_value: dashboardUrl });
+  }
+  if (process.env.GHL_FIELD_CODE) {
+    customFields.push({ key: fieldKey(process.env.GHL_FIELD_CODE), field_value: refCode });
+  }
+
+  // 1. Upsert kontakta po emailu (AEvent ga je verovatno već kreirao — spaja se)
+  const upsertRes = await fetch('https://services.leadconnectorhq.com/contacts/upsert', {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      locationId,
+      email,
+      firstName: firstName || undefined,
+      lastName: lastName || undefined,
+      customFields,
+    }),
+  });
+  if (!upsertRes.ok) {
+    throw new Error(`ghl upsert ${upsertRes.status}: ${await upsertRes.text()}`);
+  }
+  const contactId = (await upsertRes.json())?.contact?.id;
+  if (!contactId) throw new Error('ghl upsert: no contact id');
+
+  // 2. Dodaj tag (okida workflow). Poseban poziv da ne bismo prepisali postojeće tagove.
+  const tag = process.env.GHL_TAG || 'referral-link-ready';
+  const tagRes = await fetch(`https://services.leadconnectorhq.com/contacts/${contactId}/tags`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ tags: [tag] }),
+  });
+  if (!tagRes.ok) {
+    throw new Error(`ghl tag ${tagRes.status}: ${await tagRes.text()}`);
+  }
 }
 
 function cleanString(v) {
