@@ -1,11 +1,11 @@
-// Vercel serverless function: POST /api/signup
+﻿// Vercel serverless function: POST /api/signup
 // Poziva se sa thank-you stranice (GHL funnel) preko browser fetch-a.
-// Upsert prijave u Supabase, vraća lični ref kod + share/dashboard linkove.
-// Supabase-only mod — bez email alata (Tibor koristi GHL/AEvent za mejlove).
+// Upsert prijave u Supabase, vraÄ‡a liÄni ref kod + share/dashboard linkove.
+// Supabase-only mod â€” bez email alata (Tibor koristi GHL/AEvent za mejlove).
 //
 // ENV VARS REQUIRED:
 //   SUPABASE_URL               (npr. https://qdllfhjlibyvwntwknkg.supabase.co)
-//   SUPABASE_SERVICE_ROLE_KEY  (sb_secret_... — server-only, NIKAD u frontend)
+//   SUPABASE_SECRET_KEY  (sb_secret_... â€” server-only, NIKAD u frontend)
 //   WEBINAR_LANDING_URL        (fallback landing URL za share link)
 //   DASHBOARD_BASE_URL         (npr. https://tibor-referral-system.vercel.app)
 
@@ -38,7 +38,7 @@ export default async function handler(req, res) {
   const email = cleanString(body.email).toLowerCase();
   const ref = cleanString(body.ref);
 
-  // Ime stiže ili kao puno ime ("name") ili razdvojeno (first_name/last_name)
+  // Ime stiÅ¾e ili kao puno ime ("name") ili razdvojeno (first_name/last_name)
   let firstName = cleanString(body.firstName || body.first_name);
   let lastName = cleanString(body.lastName || body.last_name);
   if (!firstName) {
@@ -47,7 +47,7 @@ export default async function handler(req, res) {
     lastName = lastName || split.lastName || '';
   }
 
-  // Body URL ima prednost (omogućava da jedan API služi više landing stranica),
+  // Body URL ima prednost (omoguÄ‡ava da jedan API sluÅ¾i viÅ¡e landing stranica),
   // env je fallback.
   const webinarUrl = cleanString(body.webinarUrl) || cleanString(process.env.WEBINAR_LANDING_URL);
 
@@ -87,8 +87,8 @@ async function createSignup({ email, firstName, lastName, ref }) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      apikey: process.env.SUPABASE_SERVICE_ROLE_KEY,
-      Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+      apikey: process.env.SUPABASE_SECRET_KEY,
+      Authorization: `Bearer ${process.env.SUPABASE_SECRET_KEY}`,
     },
     body: JSON.stringify({
       p_email: email,
