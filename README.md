@@ -10,7 +10,7 @@ Tibor koristi GHL/AEvent za emailove).
 ## Arhitektura
 
 ```
-Optin (GHL: /uzivo-trening-old)
+Optin (GHL: /optin)
   └─ snippets/optin-head.html — hvata ?r=KOD → localStorage, stash ime/email na submit
         │  custom forma redirectuje sa ?email=&phone=&first_name=
         ▼
@@ -57,7 +57,7 @@ snippets/thankyou-embed.html   ← GHL Thank You step → custom HTML/JS element
    |---|---|
    | `SUPABASE_URL` | `https://qdllfhjlibyvwntwknkg.supabase.co` |
    | `SUPABASE_SECRET_KEY` | `sb_secret_...` (iz Supabase Settings → API keys) |
-   | `WEBINAR_LANDING_URL` | `https://uzivotrening.editunovac.com/uzivo-trening-old` |
+   | `WEBINAR_LANDING_URL` | `https://uzivotrening.editunovac.com/optin` |
    | `DASHBOARD_BASE_URL` | deploy URL (npr. `https://tibor-referral-system.vercel.app`) |
 
 3. Deploy. Proveri stvarni deploy URL — ako NIJE `tibor-referral-system.vercel.app`,
@@ -104,7 +104,7 @@ update signups set reward_sent = true where email in ('...');
 ## Placeholderi (čeka se Tibor)
 
 - **Prag/nagrada**: `REWARD_TEXT` u `dashboard/index.html` + tekst u thankyou widgetu.
-- **Landing URL**: trenutno stari page (`/uzivo-trening-old`) — pri prelasku na novi
+- **Landing URL**: trenutno stari page (`/optin`) — pri prelasku na novi
   webinar page promeni `WEBINAR_LANDING_URL` (Vercel env), `CONFIG.webinarUrl`
   (thankyou-embed) i `WEBINAR_LANDING_URL` (dashboard/index.html), i preseli snippete
   u nove funnel stepove.
