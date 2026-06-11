@@ -1,0 +1,278 @@
+<!--
+  Edit Unovac · Uživo Trening — THANK-YOU page — Referral Link Card Embed
+  (https://uzivotrening.editunovac.com/thank-you)
+
+  INSTALL: GHL funnel → Thank You step → ubaci Custom JS/HTML element gde želiš
+  karticu → pejstuj ceo ovaj fajl (style + markup + script). Save + Publish.
+
+  Šta radi:
+  Pročita email/ime (URL parametri → localStorage rezerva sa optin/application
+  stranice), pozove /api/signup koji upiše prijavu u Supabase i vrati lični
+  referral link + dashboard link, pa prikaže karticu: "TVOJ REFERRAL LINK"
+  [input] [Kopiraj] + "Prati broj prijavljenih na svojoj platformi".
+
+  CONFIG: proveri apiUrl posle prvog Vercel deploya (mora da bude pravi domen).
+-->
+
+<style>
+  .eu-ref-embed {
+    font-family: 'Montserrat', Arial, sans-serif;
+    font-weight: 500;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .eu-ref-embed * { box-sizing: border-box; }
+
+  .eu-ref-card {
+    background: #181009;
+    border: 1px solid #2b2014;
+    border-radius: 0.75rem;
+    padding: 2rem;
+  }
+
+  .eu-ref-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #8c8273;
+    margin-bottom: 14px;
+  }
+
+  .eu-ref-row {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .eu-ref-input {
+    flex: 1;
+    background: #0a0403;
+    border: 1px solid #2b2014;
+    color: #f5efe4;
+    font-family: 'Montserrat', Menlo, monospace;
+    font-weight: 500;
+    font-size: 14px;
+    padding: 14px 16px;
+    border-radius: 0.25rem;
+    outline: none;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .eu-ref-input:focus { border-color: #8c8273; }
+
+  .eu-ref-btn {
+    background: #e8a838;
+    color: #1a1000;
+    border: 1px solid transparent;
+    padding: 14px 26px;
+    border-radius: 0.25rem;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1em;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    white-space: nowrap;
+  }
+  .eu-ref-btn:hover { background: #d4982f; }
+  .eu-ref-btn:active { transform: scale(0.97); }
+  .eu-ref-btn.eu-ref-copied { background: #6b4e1c; color: #f5efe4; }
+
+  .eu-ref-footnote {
+    color: #a99e8d;
+    font-size: 13px;
+    line-height: 1.55;
+    margin-top: 12px;
+  }
+  .eu-ref-footnote a {
+    color: #e8a838;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .eu-ref-footnote a:hover { color: #d4982f; }
+
+  .eu-ref-status {
+    color: #a99e8d;
+    font-size: 14px;
+    line-height: 1.55;
+    text-align: center;
+    padding: 8px 0;
+  }
+  .eu-ref-status strong { color: #f5efe4; }
+
+  .eu-ref-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #f5efe4;
+    color: #0a0403;
+    padding: 13px 22px;
+    border-radius: 0.25rem;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+  }
+  .eu-ref-toast.eu-ref-show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  @media (max-width: 480px) {
+    .eu-ref-btn { padding: 14px 18px; }
+  }
+</style>
+
+<div class="eu-ref-embed" id="eu-ref-embed">
+  <div class="eu-ref-card">
+    <div class="eu-ref-status">Pripremamo tvoj referral link…</div>
+  </div>
+</div>
+<div class="eu-ref-toast" id="eu-ref-toast">Link kopiran ✓</div>
+
+<script>
+(function () {
+  var CONFIG = {
+    apiUrl: 'https://tibor-referral-system.vercel.app/api/signup',
+    webinarUrl: 'https://uzivotrening.editunovac.com/uzivo-trening-old',
+    dashboardBaseUrl: 'https://tibor-referral-system.vercel.app',
+  };
+
+  var root = document.getElementById('eu-ref-embed');
+  var params = new URLSearchParams(window.location.search);
+
+  var isDemo = params.get('demo') === '1';
+  if (isDemo) {
+    setTimeout(function () {
+      renderCard({
+        shareUrl: CONFIG.webinarUrl + '?r=X7K2M9',
+        dashboardUrl: CONFIG.dashboardBaseUrl + '/?t=demo-token',
+      });
+    }, 200);
+    return;
+  }
+
+  // Data flow: optin forma šalje email/first_name kroz URL na /application,
+  // a naši head snippeti ih čuvaju u localStorage. Redosled čitanja:
+  // URL parametri → localStorage stash → (ref) localStorage eu_ref.
+  var stashed = readStashedSignup();
+  var email = getParam(['email', 'Email']) || stashed.email;
+  var name  = getParam(['first_name', 'name', 'Name']) || stashed.name;
+  var ref   = getParam(['r', 'ref', 'Ref']) || stashed.ref || getStoredRef();
+
+  if (!email) {
+    renderStatus('Nismo pročitali tvoju prijavu — referral link nije generisan. Vrati se i prijavi se preko forme.');
+    return;
+  }
+
+  fetch(CONFIG.apiUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      email: email, name: name, ref: ref,
+      webinarUrl: CONFIG.webinarUrl,
+    }),
+  })
+  .then(function (res) {
+    if (!res.ok) throw new Error('status ' + res.status);
+    return res.json();
+  })
+  .then(renderCard)
+  .catch(function (err) {
+    console.error('[eu-ref] signup failed', err);
+    renderStatus('Problem pri generisanju linka. Osveži stranicu za minut.');
+  });
+
+  function renderCard(data) {
+    root.innerHTML =
+      '<div class="eu-ref-card">' +
+        '<div class="eu-ref-label">Tvoj referral link</div>' +
+        '<div class="eu-ref-row">' +
+          '<input class="eu-ref-input" id="eu-ref-input" value="' + esc(data.shareUrl) + '" readonly />' +
+          '<button class="eu-ref-btn" id="eu-ref-btn" type="button">Kopiraj</button>' +
+        '</div>' +
+        '<div class="eu-ref-footnote">' +
+          'Prati broj prijavljenih preko svog linka na <a href="' + esc(data.dashboardUrl) + '" target="_blank" rel="noopener">svojoj platformi</a>.' +
+        '</div>' +
+      '</div>';
+    document.getElementById('eu-ref-btn').addEventListener('click', onCopy);
+    document.getElementById('eu-ref-input').addEventListener('click', function (e) { e.target.select(); });
+  }
+
+  function renderStatus(html) {
+    root.innerHTML = '<div class="eu-ref-card"><div class="eu-ref-status">' + html + '</div></div>';
+  }
+
+  function onCopy() {
+    var btn = document.getElementById('eu-ref-btn');
+    var input = document.getElementById('eu-ref-input');
+    var done = function () {
+      btn.textContent = 'Kopirano ✓';
+      btn.classList.add('eu-ref-copied');
+      showToast();
+      setTimeout(function () {
+        btn.textContent = 'Kopiraj';
+        btn.classList.remove('eu-ref-copied');
+      }, 2000);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(input.value).then(done, fallback);
+    } else {
+      fallback();
+    }
+    function fallback() {
+      input.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      done();
+    }
+  }
+
+  function showToast() {
+    var t = document.getElementById('eu-ref-toast');
+    t.classList.add('eu-ref-show');
+    setTimeout(function () { t.classList.remove('eu-ref-show'); }, 1800);
+  }
+
+  function getParam(keys) {
+    for (var i = 0; i < keys.length; i++) {
+      var v = params.get(keys[i]);
+      if (v && v.trim()) return v.trim();
+    }
+    return '';
+  }
+
+  function getStoredRef() {
+    try { return localStorage.getItem('eu_ref') || ''; } catch (e) { return ''; }
+  }
+
+  function readStashedSignup() {
+    try {
+      var raw = localStorage.getItem('eu_signup');
+      if (!raw) return {};
+      var obj = JSON.parse(raw);
+      return {
+        email: (obj && obj.email) || '',
+        name:  (obj && obj.name)  || '',
+        ref:   (obj && obj.ref)   || '',
+      };
+    } catch (e) { return {}; }
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+})();
+</script>

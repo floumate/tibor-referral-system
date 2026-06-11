@@ -1,0 +1,67 @@
+<!--
+  Edit Unovac · Uživo Trening — OPTIN page — Referral Capture
+  (https://uzivotrening.editunovac.com/uzivo-trening-old)
+
+  INSTALL: GHL funnel → Optin step → Settings → Custom Code / Tracking Code → HEAD.
+  Save + Publish.
+
+  Šta radi:
+  1. Čita ?r=KOD iz URL-a (referral kod) i čuva ga u localStorage (preživljava ceo funnel).
+  2. Na submit forme, snimi ime/email u localStorage kao rezervu — thank-you
+     stranica ih čita ako URL parametri ne stignu do nje.
+-->
+<script>
+(function () {
+  var REF_STORAGE = 'eu_ref';
+  var SIGNUP_STORAGE = 'eu_signup';
+  var QUERY_PARAM = 'r';
+
+  // 1. Capture ?r= iz URL-a → localStorage
+  try {
+    var params = new URLSearchParams(window.location.search);
+    var codeFromUrl = params.get(QUERY_PARAM);
+    if (codeFromUrl) {
+      var clean = codeFromUrl.trim().toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+      if (clean.length >= 4) {
+        try { localStorage.setItem(REF_STORAGE, clean); } catch (e) {}
+      }
+    }
+  } catch (e) {}
+
+  function getStoredRef() {
+    try { return localStorage.getItem(REF_STORAGE) || ''; } catch (e) { return ''; }
+  }
+
+  // 2. Na submit bilo koje forme: snimi name/email u localStorage (rezerva za thank-you)
+  function onSubmit(e) {
+    var form = e.target || this;
+    if (!form || !form.querySelector) return;
+    try {
+      var emailEl = form.querySelector('input[type="email"], input[name="email"], input[name="Email"]');
+      var nameEl = form.querySelector('input[name="name"], input[name="Name"], input[autocomplete="name"]');
+      var data = {
+        email: (emailEl && emailEl.value) || '',
+        name: (nameEl && nameEl.value) || '',
+        ref: getStoredRef(),
+        ts: Date.now(),
+      };
+      if (data.email) {
+        localStorage.setItem(SIGNUP_STORAGE, JSON.stringify(data));
+      }
+    } catch (err) {}
+  }
+
+  function attach() {
+    var forms = document.querySelectorAll('form');
+    for (var i = 0; i < forms.length; i++) {
+      forms[i].addEventListener('submit', onSubmit, true);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', attach);
+  } else {
+    attach();
+  }
+})();
+</script>

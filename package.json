@@ -1,0 +1,9 @@
+{
+  "name": "tibor-referral-system",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Edit Unovac (Tibor) — referral sistem za webinar prijave",
+  "engines": {
+    "node": ">=18"
+  }
+}

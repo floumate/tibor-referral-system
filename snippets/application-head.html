@@ -1,0 +1,48 @@
+<!--
+  Edit Unovac · Uživo Trening — APPLICATION page — Signup Stash
+  (https://uzivotrening.editunovac.com/application)
+
+  INSTALL: GHL funnel → Application step → Settings → Custom Code / Tracking Code → HEAD.
+  Save + Publish.
+
+  Šta radi:
+  Optin forma redirectuje ovamo sa ?email=...&phone=...&first_name=... u URL-u.
+  Ovaj skript snimi te podatke u localStorage da bi ih thank-you stranica imala
+  čak i ako ih Typeform/sledeći korak ne prosledi dalje kroz URL.
+  Usput hvata i ?r=KOD ako je neko podelio direktno link application stranice.
+-->
+<script>
+(function () {
+  var REF_STORAGE = 'eu_ref';
+  var SIGNUP_STORAGE = 'eu_signup';
+
+  try {
+    var params = new URLSearchParams(window.location.search);
+
+    // 1. Capture ?r= ako postoji
+    var codeFromUrl = params.get('r');
+    if (codeFromUrl) {
+      var clean = codeFromUrl.trim().toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+      if (clean.length >= 4) {
+        try { localStorage.setItem(REF_STORAGE, clean); } catch (e) {}
+      }
+    }
+
+    // 2. Stash email/ime iz URL parametara (stigli sa optin forme)
+    var email = (params.get('email') || '').trim();
+    var firstName = (params.get('first_name') || params.get('name') || '').trim();
+    if (email) {
+      var prev = {};
+      try { prev = JSON.parse(localStorage.getItem(SIGNUP_STORAGE) || '{}') || {}; } catch (e) {}
+      var ref = '';
+      try { ref = localStorage.getItem(REF_STORAGE) || ''; } catch (e) {}
+      localStorage.setItem(SIGNUP_STORAGE, JSON.stringify({
+        email: email,
+        name: firstName || prev.name || '',
+        ref: ref || prev.ref || '',
+        ts: Date.now(),
+      }));
+    }
+  } catch (e) {}
+})();
+</script>
