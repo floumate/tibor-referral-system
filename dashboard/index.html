@@ -47,15 +47,6 @@
     padding: 48px 20px 80px;
   }
 
-  .brand {
-    font-size: 12px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted);
-    font-weight: 700;
-    margin-bottom: 36px;
-  }
-
   .hero { margin-bottom: 32px; }
   .hero h1 {
     font-weight: 800;
@@ -228,20 +219,12 @@
   .lb-item:first-child { padding-top: 4px; }
   .lb-item:last-child { border-bottom: none; padding-bottom: 0; }
   .lb-item.me {
-    position: relative;
-    border-bottom: 1px solid transparent;
-  }
-  .lb-item.me::before {
-    content: '';
-    position: absolute;
-    inset: 6px -12px;
     background: rgba(232, 168, 56, 0.08);
     border-radius: var(--radius-sm);
-    pointer-events: none;
-    z-index: 0;
+    border-bottom: 1px solid transparent;
+    padding: 14px 12px;
+    margin: 0 -12px;
   }
-  .lb-item.me > * { position: relative; z-index: 1; }
-  .lb-item.me + .lb-item { padding-top: 16px; }
 
   .lb-rank {
     font-weight: 800;
@@ -356,7 +339,6 @@
   const SUPABASE_URL = 'https://qdllfhjlibyvwntwknkg.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_qr-AMxcW5uMNtOJSYiMPtw_-xxd1XSr';
   const WEBINAR_LANDING_URL = 'https://uzivotrening.editunovac.com/optin';
-  const BRAND_LINE = 'Edit Unovac · Uživo Trening';
   // PLACEHOLDER — prag i tekst nagrade, menja se kad Tibor odluči:
   const REWARD_TEXT = 'Pozovi prijatelje preko svog linka i osvoji nagradu.';
 
@@ -453,8 +435,6 @@
     const leaderboardBlock = renderLeaderboard(board, refCode, myRank, count);
 
     app.innerHTML = `
-      <div class="brand">${escapeHtml(BRAND_LINE)}</div>
-
       <div class="hero">
         <h1>${greeting}</h1>
         <p>${subtitle}</p>
@@ -567,7 +547,6 @@
 
   function renderError(msg) {
     app.innerHTML = `
-      <div class="brand">${escapeHtml(BRAND_LINE)}</div>
       <div class="error-box">${escapeHtml(msg)}</div>
     `;
   }
