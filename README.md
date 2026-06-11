@@ -11,7 +11,9 @@ Tibor koristi GHL/AEvent za emailove).
 
 ```
 Optin (GHL: /optin-970758)
-  └─ snippets/optin-head.html — hvata ?r=KOD → localStorage, stash ime/email na submit
+  └─ snippets/optin-head.html — hvata ?r=KOD → localStorage; na submit forme
+     VALIDIRA i ODMAH šalje POST → /api/signup (referral se beleži na optinu!)
+     + stash ime/email za thank-you widget
         │  custom forma redirectuje sa ?email=&phone=&first_name=
         ▼
 Application (GHL: /application-old — Typeform)
@@ -20,7 +22,7 @@ Application (GHL: /application-old — Typeform)
 Thank-you (GHL: /thank-you-cta)
   └─ snippets/thankyou-embed.html — widget:
         ├─ čita email/ime (URL → localStorage), ref kod (localStorage)
-        ├─ POST → /api/signup (Vercel) → upsert u Supabase → vraća ref_code + linkove
+        ├─ POST → /api/signup — idempotentan: vraća VEĆ KREIRAN ref_code sa optina
         └─ renderuje: "TVOJ REFERRAL LINK [Kopiraj]" + link na dashboard
 
 Dashboard (Vercel: / → dashboard/index.html, pristup sa ?t=TOKEN)
