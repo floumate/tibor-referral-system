@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Tvoj Online Posao · Edit Unovac</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* Dizajn 1:1 sa ecomtalent / Tibor optin (isto kao dashboard/index.html) */
+  :root {
+    --bg: #05000F;
+    --card: #0E0B14;
+    --heading: #FFFFFF;
+    --text: #ABB1BA;
+    --muted: #757589;
+    --cyan: #00D0FF;
+    --blue: #0066FF;
+    --ring: rgba(1, 115, 255, 0.20);
+    --surface: rgba(255, 255, 255, 0.06);
+    --border: rgba(255, 255, 255, 0.08);
+    --grad: linear-gradient(180deg, #00D0FF 0%, #0066FF 100%);
+    --grad-text: linear-gradient(331deg, #00D0FF 0%, #0066FF 100%);
+    --font: "SF UI Display", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+    --radius-sm: 10px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .page-bg { position: fixed; inset: 0; z-index: -1; background: var(--bg); pointer-events: none; }
+  .page-bg::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: repeating-linear-gradient(135deg,
+      rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px,
+      transparent 1px, transparent 7px);
+  }
+  .page-bg::after {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 540px;
+    background:
+      radial-gradient(620px 320px at 8% -8%, rgba(180,205,255,0.10), transparent 70%),
+      radial-gradient(620px 320px at 92% -8%, rgba(180,205,255,0.09), transparent 70%);
+  }
+
+  main { max-width: 680px; margin: 0 auto; padding: 44px 20px 88px; }
+
+  .brand {
+    display: inline-block;
+    font-size: 12.5px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    background: var(--grad-text);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 22px;
+  }
+
+  h1 {
+    font-weight: 800;
+    font-size: clamp(28px, 7vw, 42px);
+    letter-spacing: -0.02em;
+    line-height: 1.12;
+    color: var(--heading);
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    margin-bottom: 16px;
+  }
+
+  .card-label {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 16px;
+  }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    background: var(--grad);
+    color: #FFFFFF; border: none;
+    padding: 15px 28px;
+    border-radius: var(--radius-sm);
+    font-family: inherit; font-size: 15px; font-weight: 600;
+    letter-spacing: -0.01em; cursor: pointer;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 0 0 3px var(--ring);
+    transition: filter 0.15s, transform 0.1s;
+  }
+  .btn:hover { filter: brightness(1.07); }
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.5; cursor: default; }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+    box-shadow: none;
+    padding: 14px 24px;
+    border-radius: var(--radius-sm);
+    font-family: inherit; font-size: 14px; font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .btn-ghost:hover { border-color: rgba(255,255,255,0.25); color: var(--heading); }
+
+  .screen { display: none; animation: fadeUp 0.35s ease both; }
+  .screen.active { display: block; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+  /* ---- Intro ---- */
+  .intro-sub { margin-top: 12px; font-size: 16px; }
+  .intro-rules { margin-top: 22px; display: grid; gap: 10px; }
+  .intro-rule { display: flex; gap: 10px; align-items: flex-start; font-size: 14.5px; }
+  .intro-rule .dot {
+    flex: none; width: 20px; height: 20px; border-radius: 50%;
+    background: var(--surface); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: var(--cyan); margin-top: 2px;
+  }
+  .name-row { margin-top: 24px; }
+  .name-row label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 8px; font-weight: 600; }
+  .name-row input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--heading);
+    font-family: inherit; font-weight: 500; font-size: 15px;
+    padding: 14px 16px; border-radius: var(--radius-sm);
+    outline: none;
+  }
+  .name-row input:focus { border-color: rgba(0, 208, 255, 0.5); }
+  .intro-cta { margin-top: 26px; }
+  .intro-cta .btn { width: 100%; }
+
+  /* ---- Pitanja ---- */
+  .progress-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 10px;
+  }
+  .progress-head .sec {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase;
+    background: var(--grad-text);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .progress-head .count { font-size: 13px; color: var(--muted); font-weight: 600; }
+  .progress-bar {
+    height: 6px; border-radius: 3px;
+    background: var(--surface);
+    overflow: hidden; margin-bottom: 30px;
+  }
+  .progress-fill { height: 100%; background: var(--grad); border-radius: 3px; transition: width 0.3s ease; }
+
+  .q-text {
+    font-size: clamp(20px, 5vw, 26px);
+    font-weight: 700; color: var(--heading);
+    letter-spacing: -0.01em; line-height: 1.3;
+    margin-bottom: 24px;
+  }
+
+  .choices { display: grid; gap: 12px; }
+  .choice {
+    text-align: left;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 18px 20px;
+    color: var(--heading);
+    font-family: inherit; font-size: 15.5px; font-weight: 500;
+    line-height: 1.4;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  }
+  .choice:hover { border-color: rgba(0, 208, 255, 0.45); }
+  .choice:active { transform: scale(0.99); }
+  .choice.selected {
+    border-color: var(--cyan);
+    background: rgba(0, 208, 255, 0.07);
+    box-shadow: 0 0 0 3px var(--ring);
+  }
+
+  .q-nav { margin-top: 26px; display: flex; justify-content: space-between; }
+
+  /* ---- Loading ---- */
+  .loading-wrap { text-align: center; padding: 80px 0; }
+  .spinner {
+    width: 48px; height: 48px; margin: 0 auto 26px;
+    border-radius: 50%;
+    border: 3px solid var(--surface);
+    border-top-color: var(--cyan);
+    animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-msg { color: var(--heading); font-size: 17px; font-weight: 600; min-height: 26px; }
+  .loading-sub { color: var(--muted); font-size: 13.5px; margin-top: 10px; }
+
+  /* ---- Rezultat ---- */
+  .type-card { text-align: center; }
+  .type-badge {
+    display: inline-block;
+    font-size: clamp(34px, 9vw, 48px);
+    font-weight: 800; letter-spacing: 0.04em;
+    background: var(--grad-text);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.1;
+  }
+  .type-nick { color: var(--heading); font-size: 18px; font-weight: 700; margin-top: 4px; }
+  .type-readout { margin-top: 16px; font-size: 15px; line-height: 1.65; text-align: left; }
+
+  .job-row {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--card);
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: border-color 0.15s;
+  }
+  .job-row.top {
+    border-color: rgba(0, 208, 255, 0.55);
+    box-shadow: 0 0 0 3px var(--ring);
+  }
+  .job-head {
+    width: 100%;
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 18px;
+    background: none; border: none;
+    font-family: inherit; cursor: pointer; text-align: left;
+  }
+  .job-rank {
+    flex: none; width: 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800; color: var(--muted);
+    background: var(--surface); border: 1px solid var(--border);
+  }
+  .job-row.top .job-rank { background: var(--grad); color: #fff; border: none; }
+  .job-mid { flex: 1; min-width: 0; }
+  .job-name { color: var(--heading); font-size: 15.5px; font-weight: 700; }
+  .job-bar { height: 5px; border-radius: 3px; background: var(--surface); margin-top: 8px; overflow: hidden; }
+  .job-bar i { display: block; height: 100%; background: var(--grad); border-radius: 3px; }
+  .job-row:not(.top) .job-bar i { background: rgba(255,255,255,0.22); }
+  .job-score { flex: none; font-size: 15px; font-weight: 800; color: var(--heading); }
+  .job-row:not(.top) .job-score { color: var(--muted); }
+  .job-caret { flex: none; color: var(--muted); font-size: 12px; transition: transform 0.2s; }
+  .job-row.open .job-caret { transform: rotate(180deg); }
+
+  .job-body { display: none; padding: 0 18px 18px; font-size: 14.5px; }
+  .job-row.open .job-body { display: block; }
+  .job-body .why { line-height: 1.6; }
+  .job-earn {
+    margin-top: 14px; font-weight: 700; color: var(--heading); font-size: 14px;
+  }
+  .job-earn span {
+    background: var(--grad-text);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .pros-cons { margin-top: 14px; display: grid; gap: 6px; }
+  .pc { display: flex; gap: 8px; align-items: flex-start; font-size: 13.5px; line-height: 1.5; }
+  .pc .ic { flex: none; width: 17px; text-align: center; font-weight: 800; margin-top: 1px; }
+  .pc.plus .ic { color: var(--cyan); }
+  .pc.minus .ic { color: #FF5A7A; }
+
+  .transition-card { text-align: center; }
+  .transition-card p { font-size: 15.5px; line-height: 1.6; color: var(--heading); }
+  .transition-card .btn { margin-top: 20px; width: 100%; }
+
+  /* ---- Kalkulator ---- */
+  .calc-sub { margin-top: 10px; font-size: 15px; margin-bottom: 26px; }
+
+  .input-group { margin-bottom: 28px; }
+  .input-group:last-child { margin-bottom: 0; }
+  .input-label { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+  .input-label-text { font-size: 14px; font-weight: 600; color: var(--text); }
+  .input-label-value { font-size: 20px; font-weight: 800; color: var(--heading); }
+  .input-label-value .unit { font-size: 13px; font-weight: 600; color: var(--muted); margin-left: 2px; }
+
+  input[type="range"] {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 6px;
+    background: var(--surface);
+    border-radius: 3px; outline: none; cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--grad); cursor: pointer;
+    border: 3px solid var(--bg);
+    box-shadow: 0 0 0 3px var(--ring);
+    transition: transform 0.15s;
+  }
+  input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.12); }
+  input[type="range"]::-moz-range-thumb {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--grad); cursor: pointer;
+    border: 3px solid var(--bg);
+    box-shadow: 0 0 0 3px var(--ring);
+  }
+  .slider-minmax {
+    display: flex; justify-content: space-between;
+    font-size: 11.5px; color: var(--muted); margin-top: 8px; font-weight: 600;
+  }
+
+  .result-main { text-align: center; padding-top: 6px; }
+  .result-amount {
+    font-size: clamp(44px, 12vw, 64px);
+    font-weight: 800; letter-spacing: -0.02em; line-height: 1.05;
+    background: var(--grad-text);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .result-formula { font-size: 12.5px; color: var(--muted); margin-top: 10px; font-weight: 600; }
+  .result-rows { margin-top: 22px; border-top: 1px solid var(--border); }
+  .result-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 0; border-bottom: 1px solid var(--border);
+  }
+  .result-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .result-row .lbl { font-size: 14px; color: var(--text); }
+  .result-row .val { font-size: 18px; font-weight: 800; color: var(--heading); }
+  .result-row.daily .val {
+    background: var(--grad-text);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .cta-card { text-align: center; }
+  .cta-card h2 { color: var(--heading); font-size: 22px; font-weight: 800; letter-spacing: -0.01em; }
+  .cta-card p { margin-top: 10px; font-size: 15px; line-height: 1.6; }
+  .cta-card .btn { margin-top: 20px; width: 100%; }
+
+  .foot { text-align: center; margin-top: 36px; font-size: 12.5px; color: var(--muted); }
+
+  @media (max-width: 480px) {
+    main { padding: 32px 16px 72px; }
+    .card { padding: 22px 18px; }
+    .q-nav { flex-direction: column-reverse; gap: 10px; }
+    .q-nav .btn-ghost { width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="page-bg"></div>
+
+<main>
+  <span class="brand">Edit Unovac · Uživo Trening</span>
+
+  <!-- ============ INTRO ============ -->
+  <section class="screen active" id="screen-intro">
+    <h1>Koji online posao je za tebe?</h1>
+    <p class="intro-sub">12 pitanja, 3 minute. AI analizira tko si, kako funkcioniraš i koji online posao ti stvarno paše - pa ti pokaže koliko na njemu možeš zaraditi.</p>
+
+    <div class="intro-rules">
+      <div class="intro-rule"><div class="dot">✓</div><span>Odgovaraj <strong style="color:var(--heading)">iskreno</strong>, ne "pametno" - rezultat je tvoj, ne naš</span></div>
+      <div class="intro-rule"><div class="dot">✓</div><span>Nema točnih odgovora, samo istinitih</span></div>
+      <div class="intro-rule"><div class="dot">✓</div><span>Na kraju dobivaš svoj tip osobnosti + rang listu poslova + kalkulator zarade</span></div>
+    </div>
+
+    <div class="name-row">
+      <label for="name-input">Kako se zoveš? (da analiza bude tvoja)</label>
+      <input type="text" id="name-input" placeholder="Tvoje ime" autocomplete="given-name" maxlength="40">
+    </div>
+
+    <div class="intro-cta">
+      <button class="btn" onclick="startQuiz()">Kreni →</button>
+    </div>
+  </section>
+
+  <!-- ============ PITANJE ============ -->
+  <section class="screen" id="screen-question">
+    <div class="progress-head">
+      <span class="sec" id="sec-label">Osobnost</span>
+      <span class="count" id="progress-count">1 / 12</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:8%"></div></div>
+
+    <p class="q-text" id="q-text"></p>
+    <div class="choices" id="choices"></div>
+
+    <div class="q-nav">
+      <button class="btn-ghost" id="btn-back" onclick="prevQuestion()">← Natrag</button>
+      <span></span>
+    </div>
+  </section>
+
+  <!-- ============ LOADING ============ -->
+  <section class="screen" id="screen-loading">
+    <div class="loading-wrap">
+      <div class="spinner"></div>
+      <p class="loading-msg" id="loading-msg">Analiziram tvoje odgovore...</p>
+      <p class="loading-sub">AI sastavlja analizu samo za tebe, traje par sekundi</p>
+    </div>
+  </section>
+
+  <!-- ============ REZULTAT ============ -->
+  <section class="screen" id="screen-results">
+    <div class="card type-card">
+      <div class="card-label">Tvoj tip osobnosti</div>
+      <div class="type-badge" id="r-type"></div>
+      <div class="type-nick" id="r-nick"></div>
+      <p class="type-readout" id="r-readout"></p>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Online poslovi rangirani za tebe</div>
+      <div id="r-jobs"></div>
+    </div>
+
+    <div class="card transition-card">
+      <p id="r-transition"></p>
+      <button class="btn" onclick="showCalculator()">Otvori kalkulator zarade →</button>
+    </div>
+  </section>
+
+  <!-- ============ KALKULATOR ============ -->
+  <section class="screen" id="screen-calc">
+    <h1>Kalkulator zarade</h1>
+    <p class="calc-sub" id="calc-sub">Pomakni slajdere i vidi koliko realno možeš zaraditi kao video editor.</p>
+
+    <div class="card">
+      <div class="input-group">
+        <div class="input-label">
+          <span class="input-label-text">Cijena po videu</span>
+          <span class="input-label-value" id="price-display">55.5<span class="unit">€</span></span>
+        </div>
+        <input type="range" id="price" min="10" max="200" value="55.5" step="0.5" oninput="calculate()">
+        <div class="slider-minmax"><span>10€</span><span>200€</span></div>
+      </div>
+
+      <div class="input-group">
+        <div class="input-label">
+          <span class="input-label-text">Broj videa mjesečno po klijentu</span>
+          <span class="input-label-value" id="videos-display">30</span>
+        </div>
+        <input type="range" id="videos" min="1" max="60" value="30" step="1" oninput="calculate()">
+        <div class="slider-minmax"><span>1</span><span>60</span></div>
+      </div>
+
+      <div class="input-group">
+        <div class="input-label">
+          <span class="input-label-text">Broj klijenata</span>
+          <span class="input-label-value" id="clients-display">2</span>
+        </div>
+        <input type="range" id="clients" min="1" max="10" value="2" step="1" oninput="calculate()">
+        <div class="slider-minmax"><span>1</span><span>10</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Mjesečna zarada</div>
+      <div class="result-main">
+        <div class="result-amount" id="calc-monthly">3.330€</div>
+        <div class="result-formula" id="calc-formula">55.5€ x 30 videa x 2 klijenta</div>
+      </div>
+      <div class="result-rows">
+        <div class="result-row daily">
+          <span class="lbl">Dnevna zarada</span>
+          <span class="val" id="calc-daily">111€</span>
+        </div>
+        <div class="result-row">
+          <span class="lbl">Godišnja zarada</span>
+          <span class="val" id="calc-yearly">39.960€</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card cta-card">
+      <h2 id="cta-title">Sad znaš brojke.</h2>
+      <p>Na webinaru uživo Tibor ti pokaže točno kako doći do prvog klijenta koji ti ovo plaća. Dođi, jer ovo su tvoje brojke - nemoj da ostanu samo na kalkulatoru.</p>
+      <button class="btn" onclick="window.location.href='https://uzivotrening.editunovac.com/optin'">Vidimo se na webinaru →</button>
+    </div>
+
+    <div class="foot">Edit Unovac · rezultat je informativna procjena, ne garancija zarade</div>
+  </section>
+</main>
+
+<script>
+(function () { /* prefill imena iz referral sistema ako postoji */
+  try {
+    var stash = JSON.parse(localStorage.getItem('eu_signup') || '{}') || {};
+    if (stash.name) document.getElementById('name-input').value = String(stash.name).split(/\s+/)[0];
+  } catch (e) {}
+})();
+
+var API_URL = '/api/analyze';
+
+/* Slovo uz svaki odgovor = MBTI os na koju se boduje (iz brief-a) */
+var QUESTIONS = [
+  { sec: 'Osobnost', q: 'Kad si na partyju ili izlasku:', opts: [
+    { t: 'Upoznajem hrpu novih ljudi', v: 'E' },
+    { t: 'Držim se ekipe koju već znam', v: 'I' }] },
+  { sec: 'Osobnost', q: 'Nakon cijelog dana provedenog s ljudima:', opts: [
+    { t: 'Imam još više energije', v: 'E' },
+    { t: 'Iscrpi me, treba mi mir', v: 'I' }] },
+  { sec: 'Osobnost', q: 'Kad kreneš u nešto novo, više si tip koji:', opts: [
+    { t: 'Ide korak po korak i prvo skuži osnove', v: 'S' },
+    { t: 'Prvo želi vidjeti veliku sliku i kamo to vodi', v: 'N' }] },
+  { sec: 'Osobnost', q: 'Ljudi bi za tebe prije rekli da si:', opts: [
+    { t: 'Praktična osoba', v: 'S' },
+    { t: 'Maštovita osoba, puna ideja', v: 'N' }] },
+  { sec: 'Osobnost', q: 'Kad nešto odlučuješ, ideš više po:', opts: [
+    { t: 'Logici', v: 'T' },
+    { t: 'Osjećaju i tome kako će se ljudi osjećati', v: 'F' }] },
+  { sec: 'Osobnost', q: 'Veći kompliment ti je kad ti kažu:', opts: [
+    { t: '"Baš logično razmišljaš"', v: 'T' },
+    { t: '"Baš imaš veliko srce"', v: 'F' }] },
+  { sec: 'Osobnost', q: 'Više voliš kad su stvari:', opts: [
+    { t: 'Isplanirane i dogovorene', v: 'J' },
+    { t: 'Otvorene i fleksibilne', v: 'P' }] },
+  { sec: 'Osobnost', q: 'Bolje funkcioniraš:', opts: [
+    { t: 'Kad imaš rok', v: 'J' },
+    { t: 'Kad ideš svojim tempom', v: 'P' }] },
+  { sec: 'Tvoj stil', q: 'Koliko sati tjedno realno možeš odvojiti za ovo?', hours: true, opts: [
+    { t: 'Do 5h' }, { t: '5-10h' }, { t: '10-20h' }, { t: '20h+' }] },
+  { sec: 'Tvoj stil', q: 'Što ti je draže:', opts: [
+    { t: 'Stvarati nešto svoje (video, dizajn...)' },
+    { t: 'Pričati i dogovarati s ljudima' }] },
+  { sec: 'Tvoj stil', q: 'Želiš li vještinu koja je samo tvoja, ili ti ne smeta ovisiti o tuđem proizvodu?', opts: [
+    { t: 'Želim nešto što je samo moje' },
+    { t: 'Ne smeta mi ovisiti o tuđem proizvodu/offeru' }] },
+  { sec: 'Tvoj stil', q: 'Što ti je bliže:', opts: [
+    { t: 'Brze pare odmah' },
+    { t: 'Graditi nešto što raste (skill, pa veći klijenti, pa agencija)' }] }
+];
+
+var current = 0;
+var picked = new Array(QUESTIONS.length).fill(-1);
+var userName = '';
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(function (s) { s.classList.remove('active'); });
+  var el = document.getElementById(id);
+  void el.offsetWidth; /* restart animacije */
+  el.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function startQuiz() {
+  userName = (document.getElementById('name-input').value || '').trim();
+  current = 0;
+  loadQuestion();
+  showScreen('screen-question');
+}
+
+function loadQuestion() {
+  var q = QUESTIONS[current];
+  document.getElementById('sec-label').textContent = q.sec;
+  document.getElementById('progress-count').textContent = (current + 1) + ' / ' + QUESTIONS.length;
+  document.getElementById('progress-fill').style.width = ((current + 1) / QUESTIONS.length * 100) + '%';
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('btn-back').style.visibility = current === 0 ? 'hidden' : 'visible';
+
+  var box = document.getElementById('choices');
+  box.innerHTML = '';
+  q.opts.forEach(function (opt, i) {
+    var b = document.createElement('button');
+    b.className = 'choice' + (picked[current] === i ? ' selected' : '');
+    b.type = 'button';
+    b.textContent = opt.t;
+    b.onclick = function () { pick(i, b); };
+    box.appendChild(b);
+  });
+}
+
+function pick(i, btn) {
+  picked[current] = i;
+  var all = document.querySelectorAll('#choices .choice');
+  all.forEach(function (c) { c.classList.remove('selected'); });
+  btn.classList.add('selected');
+  setTimeout(function () {
+    if (current === QUESTIONS.length - 1) { finishQuiz(); return; }
+    current++;
+    loadQuestion();
+  }, 240);
+}
+
+function prevQuestion() {
+  if (current === 0) return;
+  current--;
+  loadQuestion();
+}
+
+function computeMbti() {
+  var score = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+  for (var i = 0; i < 8; i++) {
+    var v = QUESTIONS[i].opts[picked[i]].v;
+    score[v]++;
+  }
+  return (score.E >= score.I ? 'E' : 'I') +
+         (score.S >= score.N ? 'S' : 'N') +
+         (score.T >= score.F ? 'T' : 'F') +
+         (score.J >= score.P ? 'J' : 'P');
+}
+
+var LOADING_MSGS = [
+  'Analiziram tvoje odgovore...',
+  'Određujem tvoj tip osobnosti...',
+  'Uspoređujem te s online poslovima...',
+  'Rangiram poslove po tome koliko ti pašu...',
+  'Slažem tvoju analizu...'
+];
+var loadingTimer = null;
+
+function finishQuiz() {
+  showScreen('screen-loading');
+  var idx = 0;
+  loadingTimer = setInterval(function () {
+    idx = (idx + 1) % LOADING_MSGS.length;
+    document.getElementById('loading-msg').textContent = LOADING_MSGS[idx];
+  }, 2200);
+
+  var mbti = computeMbti();
+  var hours = QUESTIONS[8].opts[picked[8]].t;
+  var answers = QUESTIONS.map(function (q, i) {
+    return { q: q.q, a: q.opts[picked[i]].t };
+  });
+
+  fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: userName, mbti: mbti, hours: hours, answers: answers })
+  })
+  .then(function (res) { if (!res.ok) throw new Error('status ' + res.status); return res.json(); })
+  .then(function (data) {
+    if (!data || !data.ok || !data.result) throw new Error('bad payload');
+    renderResults(data.result);
+  })
+  .catch(function (err) {
+    console.error('[kviz] AI analiza nedostupna, fallback', err);
+    renderResults(localFallback(mbti, hours));
+  })
+  .finally(function () {
+    clearInterval(loadingTimer);
+    showScreen('screen-results');
+  });
+}
+
+function renderResults(r) {
+  document.getElementById('r-type').textContent = r.type || '';
+  document.getElementById('r-nick').textContent = r.nickname || '';
+  document.getElementById('r-readout').textContent = r.readout || '';
+  document.getElementById('r-transition').textContent = r.transition ||
+    'Ok, sad kad znaš što ti najbolje paše - da vidimo koliko konkretno možeš zaraditi.';
+
+  var jobs = (r.jobs || []).slice(0, 5);
+  var box = document.getElementById('r-jobs');
+  box.innerHTML = '';
+  jobs.forEach(function (job, i) {
+    var row = document.createElement('div');
+    row.className = 'job-row' + (i === 0 ? ' top open' : '');
+
+    var pros = (job.pros || []).map(function (p) {
+      return '<div class="pc plus"><span class="ic">+</span><span>' + esc(p) + '</span></div>';
+    }).join('');
+    var cons = (job.cons || []).map(function (c) {
+      return '<div class="pc minus"><span class="ic">-</span><span>' + esc(c) + '</span></div>';
+    }).join('');
+
+    row.innerHTML =
+      '<button class="job-head" type="button">' +
+        '<span class="job-rank">' + (i + 1) + '</span>' +
+        '<span class="job-mid">' +
+          '<span class="job-name">' + esc(job.name) + '</span>' +
+          '<span class="job-bar"><i style="width:' + Math.max(5, Math.min(100, Number(job.score) || 0)) + '%"></i></span>' +
+        '</span>' +
+        '<span class="job-score">' + (Number(job.score) || 0) + '%</span>' +
+        '<span class="job-caret">▼</span>' +
+      '</button>' +
+      '<div class="job-body">' +
+        '<p class="why">' + esc(job.why || '') + '</p>' +
+        (job.earnings ? '<p class="job-earn">Realna zarada: <span>' + esc(job.earnings) + '</span></p>' : '') +
+        (pros || cons ? '<div class="pros-cons">' + pros + cons + '</div>' : '') +
+      '</div>';
+
+    row.querySelector('.job-head').onclick = function () { row.classList.toggle('open'); };
+    box.appendChild(row);
+  });
+
+  /* Kalkulator naslov u kontekstu pobjedničkog posla */
+  var topJob = jobs[0] ? jobs[0].name : 'Video Editing';
+  if (/edit/i.test(topJob)) {
+    document.getElementById('calc-sub').textContent = 'Pomakni slajdere i vidi koliko realno možeš zaraditi kao video editor.';
+  }
+}
+
+/* Fallback ako AI server nije dostupan - rezultat se ipak prikaže.
+   Blaga randomizacija brojki da ni fallback ne bude svima isti. */
+function localFallback(mbti, hours) {
+  var jitter = function (base, spread) { return base + Math.floor(Math.random() * spread); };
+  var intro = mbti.charAt(0) === 'I';
+  var nick = { I: 'Tihi Graditelj', E: 'Pokretač' }[mbti.charAt(0)];
+  var name = userName ? userName + ', ' : '';
+  var editWhy = intro
+    ? 'Radiš od doma, u svom miru, bez sastanaka i bez da ikome moraš išta pričati. Tvoj fokus je tvoja najveća prednost - a editing je posao gdje se fokus direktno pretvara u novac.'
+    : 'Izražavaš se kroz video i tvoja energija se vidi u svakom rezu. Editing ti je i prirodan stepping stone prema videografiji - snimaš poduzetnike i ulaziš u jak krug ljudi.';
+  var sEdit = jitter(86, 9), s2 = jitter(64, 9), s3 = jitter(55, 9), s4 = jitter(46, 9), s5 = jitter(34, 9);
+  return {
+    type: mbti,
+    nickname: nick,
+    readout: name + 'tvoji odgovori pokazuju da si ' + (intro ? 'osoba kojoj paše samostalan rad, mir i kontrola nad svojim vremenom' : 'osoba koja se puni energijom kroz ljude i izražavanje') + '. Imaš ' + hours + ' tjedno na raspolaganju, što je sasvim dovoljno za ozbiljan start - bitnije je kako koristiš sate nego koliko ih imaš.',
+    jobs: [
+      { name: 'Video Editing', score: sEdit, why: editWhy, earnings: jitter(450, 120) + ' - ' + jitter(2400, 800) + ' € mjesečno',
+        pros: ['Vještina koja je samo tvoja - nitko ti je ne može uzeti', 'Visok strop: od prvog klijenta do agencije', 'AI te ne mijenja, nego te čini bržim i vrjednijim'],
+        cons: ['Treba 30-60 dana ozbiljnog učenja prije prvih para'] },
+      { name: 'Copywriting', score: s2, why: 'Pisanje prodajnih tekstova ti može pasati, ali tržište je prepuno i teško se izdvojiti bez rezultata iza sebe.', earnings: jitter(280, 100) + ' - ' + jitter(1400, 500) + ' € mjesečno',
+        pros: ['Treba ti samo laptop', 'Dobra podloga za marketing'], cons: ['Ogromna konkurencija', 'AI piše sve više osnovnog copyja'] },
+      { name: 'Social Media Management', score: s3, why: 'Vođenje profila brendovima zvuči zabavno, ali u praksi je puno dopisivanja, gašenja požara i ovisiš o tuđim odlukama.', earnings: jitter(250, 100) + ' - ' + jitter(1100, 400) + ' € mjesečno',
+        pros: ['Lako se ulazi', 'Radiš s više brendova'], cons: ['Stalno moraš biti online', 'Klijenti često ne znaju što žele'] },
+      { name: 'Web Design', score: s4, why: 'Kreativan posao, ali ciklusi su dugi - projekt se dogovara tjednima, a alati poput AI buildera spuštaju cijene.', earnings: jitter(350, 150) + ' - ' + jitter(1600, 600) + ' € mjesečno',
+        pros: ['Dobra zarada po projektu'], cons: ['Dug prodajni ciklus', 'AI builderi obaraju cijene'] },
+      { name: 'Appointment Setting', score: s5, why: 'Zakazivanje poziva za tuđi biznis - brz ulaz, ali repetitivno, ovisiš o tuđem offeru i AI ovakve poslove mijenja prvi.', earnings: jitter(200, 80) + ' - ' + jitter(900, 300) + ' € mjesečno',
+        pros: ['Ne treba tehnička vještina'], cons: ['Dosadno i repetitivno', 'Ovisiš o tuđem proizvodu', 'AI ga lako mijenja'] }
+    ],
+    transition: 'Ok' + (userName ? ', ' + userName : '') + ' - sad kad znaš da ti editing najbolje paše, da vidimo koliko konkretno možeš zaraditi.'
+  };
+}
+
+function showCalculator() {
+  showScreen('screen-calc');
+  calculate();
+}
+
+/* ---- Kalkulator ----
+   Default 55.5€ x 30 videa x 2 klijenta = 3.330€ mjesečno -> 111€ dnevno
+   (kampanja je obećala 111, zato prvi parametar 55.5 a ne 55). */
+function fmt(n) {
+  var r = Math.round(n);
+  return String(r).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+function calculate() {
+  var price = parseFloat(document.getElementById('price').value);
+  var videos = parseInt(document.getElementById('videos').value, 10);
+  var clients = parseInt(document.getElementById('clients').value, 10);
+
+  var monthly = price * videos * clients;
+  var daily = monthly / 30;
+  var yearly = monthly * 12;
+
+  var priceLabel = (price % 1 === 0) ? String(price) : String(price).replace('.', '.');
+  document.getElementById('price-display').innerHTML = priceLabel + '<span class="unit">€</span>';
+  document.getElementById('videos-display').textContent = videos;
+  document.getElementById('clients-display').textContent = clients;
+
+  document.getElementById('calc-monthly').textContent = fmt(monthly) + '€';
+  document.getElementById('calc-formula').textContent = priceLabel + '€ x ' + videos + ' videa x ' + clients + (clients === 1 ? ' klijent' : ' klijenta');
+  document.getElementById('calc-daily').textContent = fmt(daily) + '€';
+  document.getElementById('calc-yearly').textContent = fmt(yearly) + '€';
+}
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+</script>
+</body>
+</html>
