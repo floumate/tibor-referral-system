@@ -1,0 +1,46 @@
+<!--
+  Edit Unovac - KVIZ + KALKULATOR - GHL Embed
+  INSTALL: GHL funnel/page -> dodaj Custom JS/HTML (Embed code) element ->
+  pejstuj ceo ovaj fajl. Save + Publish.
+
+  Sta radi:
+  - Ubaci kviz (https://tibor-referral-system.vercel.app/kviz) kao iframe.
+  - Iframe sam raste/skuplja se po visini sadrzaja (kviz javlja visinu).
+  - Prosledi ime iz referral sistema (localStorage eu_signup) da bude prefill.
+  - Na promenu ekrana kviza skroluje stranicu na vrh kviza.
+
+  NAPOMENA: komentari bez nasih slova namerno (GHL ume da pokvari encoding).
+-->
+<div id="eu-kviz-wrap" style="width:100%;max-width:100%;">
+  <iframe id="eu-kviz-frame"
+          style="width:100%;border:0;display:block;height:1000px;background:#05000F;"
+          scrolling="no"
+          title="Kviz"
+          allow="clipboard-write"></iframe>
+</div>
+<script>
+(function () {
+  var BASE = 'https://tibor-referral-system.vercel.app/kviz';
+  var frame = document.getElementById('eu-kviz-frame');
+  var wrap = document.getElementById('eu-kviz-wrap');
+
+  // Ime iz referral stash-a (ako je user prosao optin na ovom browseru)
+  var src = BASE;
+  try {
+    var stash = JSON.parse(localStorage.getItem('eu_signup') || '{}') || {};
+    if (stash.name) {
+      src += '?name=' + encodeURIComponent(String(stash.name).split(/\s+/)[0]);
+    }
+  } catch (e) {}
+  frame.src = src;
+
+  window.addEventListener('message', function (e) {
+    if (e.origin !== 'https://tibor-referral-system.vercel.app') return;
+    var d = e.data || {};
+    if (d.euKvizHeight) frame.style.height = d.euKvizHeight + 'px';
+    if (d.euKvizScroll) {
+      try { wrap.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (err) {}
+    }
+  });
+})();
+</script>

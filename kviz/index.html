@@ -502,8 +502,13 @@
 </main>
 
 <script>
-(function () { /* prefill imena iz referral sistema ako postoji */
+(function () { /* prefill imena: ?name= (GHL embed prosledi) pa localStorage stash */
   try {
+    var fromUrl = new URLSearchParams(window.location.search).get('name');
+    if (fromUrl && fromUrl.trim()) {
+      document.getElementById('name-input').value = fromUrl.trim().split(/\s+/)[0];
+      return;
+    }
     var stash = JSON.parse(localStorage.getItem('eu_signup') || '{}') || {};
     if (stash.name) document.getElementById('name-input').value = String(stash.name).split(/\s+/)[0];
   } catch (e) {}
@@ -568,6 +573,8 @@ function showScreen(id) {
   void el.offsetWidth; /* restart animacije */
   el.classList.add('active');
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  /* u GHL embedu (iframe) parent treba da skroluje na vrh kviza */
+  try { if (window.parent !== window) window.parent.postMessage({ euKvizScroll: true }, '*'); } catch (e) {}
 }
 
 function startQuiz() {
@@ -859,6 +866,21 @@ function esc(s) {
     return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
   });
 }
+
+/* ---- GHL embed (iframe): javljaj visinu parent stranici da iframe raste sa sadržajem ---- */
+(function () {
+  if (window.parent === window) return; /* nije u iframe-u */
+  var last = 0;
+  function report() {
+    var h = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+    if (h !== last) {
+      last = h;
+      try { window.parent.postMessage({ euKvizHeight: h }, '*'); } catch (e) {}
+    }
+  }
+  window.addEventListener('load', report);
+  setInterval(report, 400);
+})();
 
 /* ---- Zvjezdice - statične, po cijelom pageu (isti efekt kao optin landing) ---- */
 (function () {
