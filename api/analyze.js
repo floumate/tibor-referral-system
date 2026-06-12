@@ -12,7 +12,7 @@
 // ENV VARS REQUIRED:
 //   ANTHROPIC_API_KEY   (sk-ant-... - server-only, NIKAD u frontend)
 // ENV VARS OPCIONO:
-//   ANTHROPIC_MODEL     (default: claude-haiku-4-5-20251001)
+//   ANTHROPIC_MODEL     (default: claude-sonnet-4-6)
 
 export const config = { runtime: 'nodejs' };
 

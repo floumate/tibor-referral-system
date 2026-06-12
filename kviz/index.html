@@ -848,13 +848,16 @@ function calculate() {
   var daily = monthly / 30;
   var yearly = monthly * 12;
 
-  var priceLabel = (price % 1 === 0) ? String(price) : String(price).replace('.', '.');
+  var priceLabel = String(price);
   document.getElementById('price-display').innerHTML = priceLabel + '<span class="unit">€</span>';
   document.getElementById('videos-display').textContent = videos;
   document.getElementById('clients-display').textContent = clients;
 
+  /* hrvatski padezi: 1 video / 2+ videa; 1 klijent / 2-4 klijenta / 5+ klijenata */
+  var videoWord = videos === 1 ? 'video' : 'videa';
+  var clientWord = clients === 1 ? 'klijent' : (clients <= 4 ? 'klijenta' : 'klijenata');
   document.getElementById('calc-monthly').textContent = fmt(monthly) + '€';
-  document.getElementById('calc-formula').textContent = priceLabel + '€ x ' + videos + ' videa x ' + clients + (clients === 1 ? ' klijent' : ' klijenta');
+  document.getElementById('calc-formula').textContent = priceLabel + '€ x ' + videos + ' ' + videoWord + ' x ' + clients + ' ' + clientWord;
   document.getElementById('calc-daily').textContent = fmt(daily) + '€';
   document.getElementById('calc-yearly').textContent = fmt(yearly) + '€';
 }
