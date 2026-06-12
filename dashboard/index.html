@@ -458,8 +458,6 @@
     const leaderboardBlock = renderLeaderboard(board, myRank, count);
 
     app.innerHTML = `
-      <div class="brand">${escapeHtml(BRAND)}</div>
-
       <div class="hero">
         <h1>${greeting}</h1>
         <p>${subtitle}</p>
@@ -592,7 +590,6 @@
 
   function renderError(msg) {
     app.innerHTML = `
-      <div class="brand">${escapeHtml(BRAND)}</div>
       <div class="error-box">${escapeHtml(msg)}</div>
     `;
   }
