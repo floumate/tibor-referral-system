@@ -1,9 +1,10 @@
 <script>
-  /* ---------- Referral link: LICNI kod iz referral sistema + kopiranje + WhatsApp share ----------
-     Zamenjuje stari statični REFERRAL_LINK blok. Dizajn kartice ostaje netaknut -
-     ovo samo "oživi" dugme "Kopiraj svoj link" i WhatsApp share licnim linkom.
-     Tok: optin-head je na optinu upisao prijavu + stash (localStorage eu_signup).
-     Ovde čitamo email, pozovemo /api/signup (idempotentno) i dobijemo licni ref kod. */
+  /* ---------- Referral link: LICNI kod iz referral sistema + kopiranje + link na dashboard ----------
+     Cita prijavu (localStorage eu_signup sa optina), zove /api/signup (idempotentno),
+     dobije licni ref kod + licni dashboard link. Ubaci share link u dugme "Kopiraj svoj
+     link", a dashboard link u "svojoj platformi" gdje korisnik prati sve prijave.
+     Fallback na genericki link ako nema prijave (tada se dashboard link sakrije).
+     Dizajn kartice ostaje netaknut. */
   var REFERRAL_LINK = "https://uzivotrening.editunovac.com/optin"; // fallback dok ne stigne licni
   var LINK_READY = false;
 
@@ -11,9 +12,10 @@
     var API_URL    = "https://tibor-referral-system.vercel.app/api/signup";
     var SHARE_BASE = "https://uzivotrening.editunovac.com/optin?el=referral_[webinar]_url_thankyou&hgoal=webinar&htrafficsource=referral&source=referral";
 
-    var btn   = document.getElementById('tk-copy-btn');
-    var label = btn ? btn.querySelector('.tk-cta-label') : null;
-    var wa    = document.getElementById('tk-wa-share');
+    var btn    = document.getElementById('tk-copy-btn');
+    var label  = btn ? btn.querySelector('.tk-cta-label') : null;
+    var helper = document.getElementById('tk-dash-helper');
+    var dash   = document.getElementById('tk-dash-link');
 
     function getParam(keys) {
       var p = new URLSearchParams(window.location.search);
@@ -23,14 +25,12 @@
     function getStoredRef() { try { return localStorage.getItem('eu_ref') || ''; } catch (e) { return ''; } }
     function readStash() { try { return JSON.parse(localStorage.getItem('eu_signup') || '{}') || {}; } catch (e) { return {}; } }
 
-    function setLink(url) {
-      REFERRAL_LINK = url;
+    function ready(shareUrl, dashUrl) {
+      REFERRAL_LINK = shareUrl;
       LINK_READY = true;
       if (label) label.textContent = 'Kopiraj svoj link';
-      if (wa) {
-        var msg = "Kre\u0107em na ovaj besplatni u\u017eivo trening o video editingu, pridru\u017ei se i ti: " + url;
-        wa.href = "https://wa.me/?text=" + encodeURIComponent(msg);
-      }
+      if (dash && dashUrl) { dash.href = dashUrl; if (helper) helper.style.display = ''; }
+      else if (helper) { helper.style.display = 'none'; }
     }
 
     var stash = readStash();
@@ -38,7 +38,7 @@
     var name  = getParam(['first_name', 'name', 'Name']) || stash.name;
     var ref   = getParam(['r', 'ref', 'Ref']) || stash.ref || getStoredRef();
 
-    if (!email) { setLink(REFERRAL_LINK); return; } // nema prijave u browseru → genericki link, i dalje radi
+    if (!email) { ready(REFERRAL_LINK, null); return; } // nema prijave u browseru -> genericki link, dashboard skriven
 
     if (label) label.textContent = 'Pripremam tvoj link\u2026';
 
@@ -48,8 +48,8 @@
       body: JSON.stringify({ email: email, name: name, ref: ref, webinarUrl: "https://uzivotrening.editunovac.com/optin" })
     })
     .then(function (res) { if (!res.ok) throw new Error('status ' + res.status); return res.json(); })
-    .then(function (data) { setLink(data && data.refCode ? (SHARE_BASE + '&r=' + data.refCode) : REFERRAL_LINK); })
-    .catch(function (err) { console.error('[eu-ref] signup failed', err); setLink(REFERRAL_LINK); });
+    .then(function (data) { ready(data && data.refCode ? (SHARE_BASE + '&r=' + data.refCode) : REFERRAL_LINK, data && data.dashboardUrl); })
+    .catch(function (err) { console.error('[eu-ref] signup failed', err); ready(REFERRAL_LINK, null); });
   })();
 
   // global - poziva ga onclick="copyRefLink(this)" u markup-u dugmeta
