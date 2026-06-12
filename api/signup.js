@@ -79,14 +79,13 @@ export default async function handler(req, res) {
   const dashboardUrl = `${process.env.DASHBOARD_BASE_URL}/?t=${signup.dashboard_token}`;
   const shareUrl = `${webinarUrl}${webinarUrl.includes('?') ? '&' : '?'}r=${signup.ref_code}`;
 
-  // GHL sync: upiši linkove u kontakt + tag koji okida email workflow.
-  // Samo za nove prijave (da se email ne šalje ponovo), best-effort.
-  if (signup.is_new) {
-    try {
-      await syncGhl({ email, phone, firstName, lastName, refCode: signup.ref_code, shareUrl, dashboardUrl });
-    } catch (err) {
-      console.error('ghl sync failed', err);
-    }
+  // GHL kontakt sync (telefon + opciono custom polja/tag) — UVIJEK, idempotentno.
+  // NE samo na prvu prijavu: da telefon legne i kod ponovne prijave ili ako je kontakt
+  // ranije obrisan. syncGhl interno preskoči ako nema šta da se upiše (npr. thank-you poziv bez telefona).
+  try {
+    await syncGhl({ email, phone, firstName, lastName, refCode: signup.ref_code, shareUrl, dashboardUrl });
+  } catch (err) {
+    console.error('ghl sync failed', err);
   }
 
   // Winner tag: ako ova nova prijava preko nečijeg linka digne tog referrera na prag
