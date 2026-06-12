@@ -3,14 +3,14 @@
 // zove Claude API (Anthropic) server-side i vraća personalizovan rezultat:
 // personality readout + rangirana lista online poslova (leaderboard stil).
 //
-// KLJUČNO (iz brief-a): output mora biti RAZLIČIT za svaku osobu — prijatelji
+// KLJUČNO (iz brief-a): output mora biti RAZLIČIT za svaku osobu - prijatelji
 // koji su se međusobno doveli (referral) će uporediti rezultate. Zato:
 //   - temperature 1.0
 //   - ime + tačna kombinacija odgovora ulaze u prompt
 //   - random "flavor" seed varira ugao/strukturu teksta
 //
 // ENV VARS REQUIRED:
-//   ANTHROPIC_API_KEY   (sk-ant-... — server-only, NIKAD u frontend)
+//   ANTHROPIC_API_KEY   (sk-ant-... - server-only, NIKAD u frontend)
 // ENV VARS OPCIONO:
 //   ANTHROPIC_MODEL     (default: claude-haiku-4-5-20251001)
 
@@ -60,7 +60,7 @@ export default async function handler(req, res) {
     .map((a, i) => `${i + 1}. ${cleanString(a.q).slice(0, 200)}\n   Odgovor: ${cleanString(a.a).slice(0, 200)}`)
     .join('\n');
 
-  // Random seed za varijaciju — osigurava da dvoje ljudi sa IDENTIČNIM
+  // Random seed za varijaciju - osigurava da dvoje ljudi sa IDENTIČNIM
   // odgovorima dobije bitno drugačiji tekst (ugao + ton + stil se kombinuju).
   const flavor = Math.floor(Math.random() * 1000000);
   const angles = [

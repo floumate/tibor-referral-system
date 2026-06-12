@@ -138,7 +138,7 @@
   .name-row label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 8px; font-weight: 600; }
   .name-row input {
     width: 100%;
-    background: var(--surface);
+    background: var(--card); /* puna boja - da zvjezdice ne prolaze kroz polje */
     border: 1px solid var(--border);
     color: var(--heading);
     font-family: inherit; font-weight: 500; font-size: 15px;
@@ -146,6 +146,14 @@
     outline: none;
   }
   .name-row input:focus { border-color: rgba(0, 208, 255, 0.5); }
+  .name-row input.input-error { border-color: rgba(255, 90, 122, 0.7); }
+  .name-error {
+    display: none;
+    margin-top: 8px;
+    font-size: 13px; font-weight: 600;
+    color: #FF5A7A;
+  }
+  .name-error.show { display: block; }
   .intro-cta { margin-top: 26px; }
   .intro-cta .btn { width: 100%; }
 
@@ -375,12 +383,13 @@
     </div>
 
     <div class="name-row">
-      <label for="name-input">Kako se zoveš? (da analiza bude tvoja)</label>
+      <label for="name-input">Kako se zoveš?</label>
       <input type="text" id="name-input" placeholder="Tvoje ime" autocomplete="given-name" maxlength="40">
+      <p class="name-error" id="name-error">Upiši svoje ime da krenemo.</p>
     </div>
 
     <div class="intro-cta">
-      <button class="btn" id="btn-start" onclick="startQuiz()" disabled>Kreni →</button>
+      <button class="btn" id="btn-start" onclick="startQuiz()">Kreni →</button>
     </div>
   </section>
 
@@ -500,12 +509,12 @@
   } catch (e) {}
 })();
 
-(function () { /* ime je obavezno - Kreni se otključava tek kad nešto upišu */
+(function () { /* ime je obavezno - error se skida čim počnu kucati */
   var inp = document.getElementById('name-input');
-  var btn = document.getElementById('btn-start');
-  function sync() { btn.disabled = !inp.value.trim(); }
-  inp.addEventListener('input', sync);
-  sync();
+  inp.addEventListener('input', function () {
+    inp.classList.remove('input-error');
+    document.getElementById('name-error').classList.remove('show');
+  });
 })();
 
 var API_URL = '/api/analyze';
@@ -562,8 +571,14 @@ function showScreen(id) {
 }
 
 function startQuiz() {
-  userName = (document.getElementById('name-input').value || '').trim();
-  if (!userName) return;
+  var inp = document.getElementById('name-input');
+  userName = (inp.value || '').trim();
+  if (!userName) {
+    inp.classList.add('input-error');
+    document.getElementById('name-error').classList.add('show');
+    inp.focus();
+    return;
+  }
   current = 0;
   loadQuestion();
   showScreen('screen-question');
