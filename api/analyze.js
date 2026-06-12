@@ -99,6 +99,9 @@ export default async function handler(req, res) {
   const topScore = 86 + (flavor % 12);                                // 86-97
   const earnLow = 280 + (Math.floor(flavor / 12) % 8) * 25;           // 280-455
   const earnHigh = 1400 + (Math.floor(flavor / 96) % 10) * 140;       // 1400-2660
+  // ... i za #2 i #3, jer je model bez toga konvergirao na 74%/61% šablon
+  const score2 = topScore - 9 - (Math.floor(flavor / 5) % 8);         // gap 9-16
+  const score3 = score2 - 8 - (Math.floor(flavor / 40) % 9);          // gap 8-16
 
   const systemPrompt = `Ti si AI analitičar osobnosti za "Edit Unovac" (Tibor) - brend koji uči mlade ljude video editing kao online posao. Korisnik je upravo riješio kviz osobnosti (skraćeni MBTI + pitanja o preferencama). Tvoj zadatak: na temelju njegovih odgovora generiraj personaliziranu analizu i rangiranu listu online poslova koji mu pašu.
 
@@ -128,7 +131,7 @@ PERSONALIZACIJA (NAJVAŽNIJE PRAVILO): rezultat mora djelovati pisan baš za ovu
 - Ako spominješ njegovo ime, koristi ga prirodno (1-2 puta max, ne u svakoj rečenici).
 Smjernice baš za OVU analizu (drže se dosljedno kroz cijeli output): ${angle}; ${tone}; ${styleHint}.
 
-BROJKE: score je broj 0-100 (koliko mu posao paše). Scoreovi moraju biti različiti između poslova i NE okrugli (npr. 91, 78, 64... a ne 90, 80, 70). Zarade piši kao raspone u EUR. Za OVU analizu konkretno: score posla broj 1 neka bude točno ${topScore}, raspon zarade posla broj 1 neka krene oko ${earnLow} EUR i ide do oko ${earnHigh} EUR mjesečno (smiješ malo prilagoditi po satima koje ima na raspolaganju, ali se drži tih okvira). Ostale scoreove i raspone izvedi sam, razmaknute i nasumične.
+BROJKE: score je broj 0-100 (koliko mu posao paše). Scoreovi moraju biti različiti između poslova i NE okrugli (npr. 91, 78, 64... a ne 90, 80, 70). Zarade piši kao raspone u EUR. Za OVU analizu konkretno: score posla broj 1 neka bude točno ${topScore}, posla broj 2 točno ${score2}, posla broj 3 točno ${score3} (poslove broj 4 i 5 izvedi sam, niže i razmaknute). Raspon zarade posla broj 1 neka krene oko ${earnLow} EUR i ide do oko ${earnHigh} EUR mjesečno (smiješ malo prilagoditi po satima koje ima na raspolaganju, ali se drži tih okvira). Ostale raspone zarade izvedi sam, svaki put drugačije.
 
 OUTPUT: vrati ISKLJUČIVO validan JSON, bez markdown ograda, bez teksta prije ili poslije:
 {
