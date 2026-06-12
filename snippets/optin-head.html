@@ -46,6 +46,16 @@
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
   }
 
+  // Telefon u E.164 (kao optin forma): dial code (iz country select) + broj, bez razmaka.
+  function buildE164(dialCode, raw) {
+    var clean = function (s) { return (s || '').replace(/[\s\-().]/g, ''); };
+    var num = (raw || '').trim();
+    if (!num) return '';
+    if (num.charAt(0) === '+') return clean(num);
+    if (num.indexOf('00') === 0) return '+' + clean(num.slice(2));
+    return (dialCode || '') + clean(num).replace(/^0+/, '');
+  }
+
   // 2. Na submit BILO KOJE forme (delegacija na document, capture faza - hvata i
   //    forme koje GHL renderuje dinamički): validiraj pa upiši prijavu.
   function onSubmit(e) {
@@ -59,8 +69,10 @@
       var emailEl = form.querySelector('input[type="email"], input[name="email"], input[name="Email"]');
       var nameEl = form.querySelector('input[name="name"], input[name="Name"], input[autocomplete="name"]');
       var phoneEl = form.querySelector('input[type="tel"], input[name="phone"]');
+      var dialEl = form.querySelector('#aeCountry, .ae-country-select, select');
       var email = ((emailEl && emailEl.value) || '').trim().toLowerCase();
       var name = ((nameEl && nameEl.value) || '').trim();
+      var phone = buildE164(dialEl ? dialEl.value : '', (phoneEl && phoneEl.value) || '');
 
       // Ista pravila kao validacija optin forme: ime + validan email,
       // a ako forma ima polje za telefon - bar 6 cifara.
@@ -90,6 +102,7 @@
         body: JSON.stringify({
           email: email,
           name: name,
+          phone: phone,
           ref: getStoredRef(),
           webinarUrl: WEBINAR_URL,
         }),

@@ -46,6 +46,7 @@ export default async function handler(req, res) {
 
   const email = cleanString(body.email).toLowerCase();
   const ref = cleanString(body.ref);
+  const phone = cleanString(body.phone);  // E.164 (npr. +38760123456) — upisuje se u GHL kontakt
 
   // Ime stiže ili kao puno ime ("name") ili razdvojeno (first_name/last_name)
   let firstName = cleanString(body.firstName || body.first_name);
@@ -82,7 +83,7 @@ export default async function handler(req, res) {
   // Samo za nove prijave (da se email ne šalje ponovo), best-effort.
   if (signup.is_new) {
     try {
-      await syncGhl({ email, firstName, lastName, refCode: signup.ref_code, shareUrl, dashboardUrl });
+      await syncGhl({ email, phone, firstName, lastName, refCode: signup.ref_code, shareUrl, dashboardUrl });
     } catch (err) {
       console.error('ghl sync failed', err);
     }
@@ -145,7 +146,7 @@ async function createSignup({ email, firstName, lastName, ref }) {
 
 // GHL (LeadConnector) API v2: upsert kontakta sa custom poljima + tag.
 // Tag okida GHL workflow koji šalje email sa referral linkovima.
-async function syncGhl({ email, firstName, lastName, refCode, shareUrl, dashboardUrl }) {
+async function syncGhl({ email, phone, firstName, lastName, refCode, shareUrl, dashboardUrl }) {
   const token = process.env.GHL_API_TOKEN;
   const locationId = process.env.GHL_LOCATION_ID;
   if (!token || !locationId) return; // GHL integracija nije podešena — preskoči
@@ -169,13 +170,20 @@ async function syncGhl({ email, firstName, lastName, refCode, shareUrl, dashboar
     customFields.push({ key: fieldKey(process.env.GHL_FIELD_CODE), field_value: refCode });
   }
 
-  // 1. Upsert kontakta po emailu (AEvent ga je verovatno već kreirao — spaja se)
+  // Per-signup tag je OPT-IN (samo ako je GHL_TAG eksplicitno postavljen). Bez defaulta.
+  const tag = cleanString(process.env.GHL_TAG);
+
+  // Ako nema ničega za upis (ni telefon, ni custom polja, ni tag) — preskoči poziv.
+  if (!phone && customFields.length === 0 && !tag) return;
+
+  // 1. Upsert kontakta po emailu (AEvent ga je već kreirao — spaja se; dodajemo telefon).
   const upsertRes = await fetch('https://services.leadconnectorhq.com/contacts/upsert', {
     method: 'POST',
     headers,
     body: JSON.stringify({
       locationId,
       email,
+      phone: phone || undefined,
       firstName: firstName || undefined,
       lastName: lastName || undefined,
       customFields,
@@ -187,15 +195,16 @@ async function syncGhl({ email, firstName, lastName, refCode, shareUrl, dashboar
   const contactId = (await upsertRes.json())?.contact?.id;
   if (!contactId) throw new Error('ghl upsert: no contact id');
 
-  // 2. Dodaj tag (okida workflow). Poseban poziv da ne bismo prepisali postojeće tagove.
-  const tag = process.env.GHL_TAG || 'referral-link-ready';
-  const tagRes = await fetch(`https://services.leadconnectorhq.com/contacts/${contactId}/tags`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({ tags: [tag] }),
-  });
-  if (!tagRes.ok) {
-    throw new Error(`ghl tag ${tagRes.status}: ${await tagRes.text()}`);
+  // 2. Dodaj tag SAMO ako je GHL_TAG postavljen. Poseban poziv (ne prepisuje postojeće tagove).
+  if (tag) {
+    const tagRes = await fetch(`https://services.leadconnectorhq.com/contacts/${contactId}/tags`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ tags: [tag] }),
+    });
+    if (!tagRes.ok) {
+      throw new Error(`ghl tag ${tagRes.status}: ${await tagRes.text()}`);
+    }
   }
 }
 
