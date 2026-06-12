@@ -9,12 +9,14 @@
 //   WEBINAR_LANDING_URL  (fallback landing URL za share link)
 //   DASHBOARD_BASE_URL   (npr. https://tibor-referral-system.vercel.app)
 //
-// ENV VARS OPCIONO — GHL email sa linkom (ako nisu postavljene, preskače se):
+// ENV VARS OPCIONO — GHL integracija (ako GHL_API_TOKEN/GHL_LOCATION_ID nisu postavljeni, preskače se):
 //   GHL_API_TOKEN        (Private Integration token, pit-...)
 //   GHL_LOCATION_ID      (GHL Settings → Business Profile → Location ID)
 //   GHL_FIELD_SHARE      (unique key custom polja za share URL, npr. contact.referral_share_url)
 //   GHL_FIELD_DASHBOARD  (unique key custom polja za dashboard URL)
-//   GHL_TAG              (tag koji okida workflow; default: referral-link-ready)
+//   GHL_TAG              (tag na svaku prijavu; default: referral-link-ready)
+//   GHL_WINNER_TAG       (tag kad referrer dostigne prag — okida reward workflow)
+//   REWARD_THRESHOLD     (prag referala za winner tag; default 5)
 
 export const config = { runtime: 'nodejs' };
 
@@ -83,6 +85,16 @@ export default async function handler(req, res) {
       await syncGhl({ email, firstName, lastName, refCode: signup.ref_code, shareUrl, dashboardUrl });
     } catch (err) {
       console.error('ghl sync failed', err);
+    }
+  }
+
+  // Winner tag: ako ova nova prijava preko nečijeg linka digne tog referrera na prag
+  // (default 5), dodaj mu GHL tag koji okida reward workflow. Tačno jednom (reward_sent).
+  if (signup.is_new && signup.referred_by) {
+    try {
+      await maybeTagWinner(signup.referred_by);
+    } catch (err) {
+      console.error('maybeTagWinner failed', err);
     }
   }
 
@@ -185,6 +197,74 @@ async function syncGhl({ email, firstName, lastName, refCode, shareUrl, dashboar
   if (!tagRes.ok) {
     throw new Error(`ghl tag ${tagRes.status}: ${await tagRes.text()}`);
   }
+}
+
+// Kad referrer dostigne prag referala, dodaj mu GHL "winner" tag (okida reward workflow).
+// Tačno jednom: štiti se Supabase kolonom reward_sent. Best-effort.
+async function maybeTagWinner(referrerRefCode) {
+  const token = process.env.GHL_API_TOKEN;
+  const locationId = process.env.GHL_LOCATION_ID;
+  const winnerTag = cleanString(process.env.GHL_WINNER_TAG);
+  const threshold = Number(process.env.REWARD_THRESHOLD || 5);
+  if (!token || !locationId || !winnerTag) return; // winner tag nije podešen — preskoči
+
+  const supaHeaders = {
+    apikey: process.env.SUPABASE_SECRET_KEY,
+    Authorization: `Bearer ${process.env.SUPABASE_SECRET_KEY}`,
+  };
+  const enc = encodeURIComponent(referrerRefCode);
+
+  // Referrer (email + ime + da li je nagrada već poslata) i broj njegovih referala.
+  const [refRes, countRes] = await Promise.all([
+    fetch(`${process.env.SUPABASE_URL}/rest/v1/signups?ref_code=eq.${enc}&select=email,first_name,last_name,reward_sent&limit=1`, { headers: supaHeaders }),
+    fetch(`${process.env.SUPABASE_URL}/rest/v1/signups?referred_by=eq.${enc}&select=ref_code`, {
+      headers: { ...supaHeaders, Prefer: 'count=exact' },
+    }),
+  ]);
+  if (!refRes.ok || !countRes.ok) {
+    throw new Error(`maybeTagWinner supabase ${refRes.status}/${countRes.status}`);
+  }
+
+  const rows = await refRes.json();
+  const referrer = Array.isArray(rows) ? rows[0] : null;
+  if (!referrer || !referrer.email) return;
+  if (referrer.reward_sent === true) return; // već tagovan — ne okidaj workflow ponovo
+
+  const range = countRes.headers.get('content-range') || '*/0';
+  const total = parseInt(range.split('/')[1] || '0', 10);
+  if (total < threshold) return; // još nije dostigao prag
+
+  // 1. Upsert kontakta po emailu + 2. dodaj winner tag (okida reward workflow).
+  const ghlHeaders = { Authorization: `Bearer ${token}`, Version: '2021-07-28', 'Content-Type': 'application/json' };
+  const upsertRes = await fetch('https://services.leadconnectorhq.com/contacts/upsert', {
+    method: 'POST',
+    headers: ghlHeaders,
+    body: JSON.stringify({
+      locationId,
+      email: referrer.email,
+      firstName: referrer.first_name || undefined,
+      lastName: referrer.last_name || undefined,
+    }),
+  });
+  if (!upsertRes.ok) throw new Error(`ghl winner upsert ${upsertRes.status}: ${await upsertRes.text()}`);
+  const contactId = (await upsertRes.json())?.contact?.id;
+  if (!contactId) throw new Error('ghl winner upsert: no contact id');
+
+  const tagRes = await fetch(`https://services.leadconnectorhq.com/contacts/${contactId}/tags`, {
+    method: 'POST',
+    headers: ghlHeaders,
+    body: JSON.stringify({ tags: [winnerTag] }),
+  });
+  if (!tagRes.ok) throw new Error(`ghl winner tag ${tagRes.status}: ${await tagRes.text()}`);
+
+  // 3. Označi da je nagrada poslata (da workflow ne okine ponovo na sledeću prijavu).
+  await fetch(`${process.env.SUPABASE_URL}/rest/v1/signups?ref_code=eq.${enc}`, {
+    method: 'PATCH',
+    headers: { ...supaHeaders, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+    body: JSON.stringify({ reward_sent: true }),
+  });
+
+  console.log(`[winner] tagovan ${referrer.email} sa "${winnerTag}" (count=${total})`);
 }
 
 function cleanString(v) {
