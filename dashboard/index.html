@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="robots" content="noindex, nofollow" />
-<title>Moj referral · Edit Unovac — Uživo Trening</title>
+<title>Moj referral · Edit Unovac · Uživo Trening</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -434,10 +434,10 @@
 
     const greeting = firstName ? `Pozdrav, ${escapeHtml(firstName)}!` : 'Pozdrav!';
     const subtitle = inRace
-      ? 'U trci si za nagrade! Sad se penji na lestvici — <strong>top 3 osvajaju</strong>. Svaka nova prijava te gura naviše.'
+      ? 'U utrci si za nagrade! Sad se penji na ljestvici, <strong>top 3 osvajaju</strong>. Svaka nova prijava te gura prema vrhu.'
       : (count === 0
-          ? `Dovedi <strong>${THRESHOLD} prijave</strong> preko svog linka i ulaziš u trku za nagrade. Kreni — treba ti samo jedan klik na „Kopiraj“.`
-          : `Još <strong>${remaining} ${plural(remaining)}</strong> i ulaziš u trku za nagrade. Skoro si tu.`);
+          ? `Dovedi <strong>${THRESHOLD} prijave</strong> preko svog linka i ulaziš u utrku za nagrade. Kreni, treba ti samo jedan klik na „Kopiraj“.`
+          : `Još <strong>${remaining} ${plural(remaining)}</strong> i ulaziš u utrku za nagrade. Skoro si tu.`);
 
     // glavni broj: X / 5 dok ne uđe u trku, čist broj kad uđe
     const numBlock = inRace
@@ -446,13 +446,13 @@
 
     const sideBlock = inRace && myRank
       ? `<div class="progress-rank"><span class="rank-big">#${myRank}</span><span class="rank-cap">tvoje mjesto</span></div>`
-      : (inRace ? `<span class="race-pill"><span class="dot"></span>U trci</span>` : '');
+      : (inRace ? `<span class="race-pill"><span class="dot"></span>U utrci</span>` : '');
 
     const barBlock = inRace
       ? `<span class="race-pill" style="margin-top:18px"><span class="dot"></span>Cilj od ${THRESHOLD} dostignut</span>`
       : `<div class="progress-bar"><div class="progress-fill" id="pfill"></div></div>`;
 
-    const caption = inRace ? 'prijava preko tvog linka' : 'prijava do ulaska u trku';
+    const caption = inRace ? 'prijava preko tvog linka' : 'prijava do ulaska u utrku';
 
     const prizesBlock = renderPrizes(myRank, inRace);
     const leaderboardBlock = renderLeaderboard(board, myRank, count);
@@ -481,7 +481,7 @@
           <input class="share-input" id="shareInput" value="${escapeHtml(shareUrl)}" readonly />
           <button class="copy-btn" id="copyBtn">Kopiraj</button>
         </div>
-        <div class="share-hint">Podijeli ga gdje god možeš — svaka prijava preko ovog linka se računa tebi.</div>
+        <div class="share-hint">Podijeli ga gdje god možeš. Svaka prijava preko ovog linka računa se tebi.</div>
       </div>
 
       ${prizesBlock}
@@ -489,7 +489,7 @@
       <div class="card">
         <div class="card-label">Ljudi koje si doveo/la (${count})</div>
         ${referrals.length === 0
-          ? `<div class="empty">Još niko. Podijeli link iznad i prati kako broj raste.</div>`
+          ? `<div class="empty">Još nitko. Podijeli link iznad i prati kako broj raste.</div>`
           : `<ul class="ref-list">${referrals.map(renderRefItem).join('')}</ul>`}
       </div>
 
@@ -516,7 +516,7 @@
     }).join('');
     return `
       <div class="card">
-        <div class="card-label">Nagrade · Top 3 na lestvici</div>
+        <div class="card-label">Nagrade · Top 3 na ljestvici</div>
         <ul class="prize-list">${rows}</ul>
       </div>`;
   }
@@ -543,12 +543,12 @@
 
     const showMyPosition = myRank != null && myRank > board.length;
     const foot = showMyPosition
-      ? `<div class="lb-foot">Ti si <span class="highlight">#${myRank}</span> sa ${myCount} ${plural(myCount)}. Penji se ka top 3 — nije kasno.</div>`
+      ? `<div class="lb-foot">Ti si <span class="highlight">#${myRank}</span> s ${myCount} ${plural(myCount)}. Penji se prema top 3, nije kasno.</div>`
       : '';
 
     return `
       <div class="card">
-        <div class="card-label">Lestvica · Top ${board.length}</div>
+        <div class="card-label">Ljestvica · Top ${board.length}</div>
         <ul class="lb-list">${rows}</ul>
         ${foot}
       </div>`;
