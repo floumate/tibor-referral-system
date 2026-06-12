@@ -156,42 +156,49 @@ ${answersText}
 
 Generiraj analizu i rangiranu listu poslova. Zapamti: isključivo JSON.`;
 
+  // Do 2 pokušaja: Haiku povremeno vrati presečen/neispravan JSON
+  // (zato i max_tokens 4500 - 3000 je bilo tesno za 5 poslova na hrvatskom).
   try {
-    const aiRes = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        max_tokens: 3000,
-        temperature: 1,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: userPrompt }],
-      }),
-    });
+    let lastErr = 'ai_bad_output';
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const aiRes = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': process.env.ANTHROPIC_API_KEY,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model: MODEL,
+          max_tokens: 4500,
+          temperature: 1,
+          system: systemPrompt,
+          messages: [{ role: 'user', content: userPrompt }],
+        }),
+      });
 
-    if (!aiRes.ok) {
-      const errText = await aiRes.text().catch(() => '');
-      console.error('[analyze] anthropic error', aiRes.status, errText.slice(0, 500));
-      return res.status(502).json({ error: 'ai_unavailable' });
+      if (!aiRes.ok) {
+        const errText = await aiRes.text().catch(() => '');
+        console.error('[analyze] anthropic error', aiRes.status, errText.slice(0, 500));
+        lastErr = 'ai_unavailable';
+        continue;
+      }
+
+      const data = await aiRes.json();
+      const text = (data.content || [])
+        .filter((b) => b.type === 'text')
+        .map((b) => b.text)
+        .join('');
+
+      const result = parseJson(text);
+      if (result && Array.isArray(result.jobs) && result.jobs.length > 0) {
+        return res.status(200).json({ ok: true, result });
+      }
+
+      console.error('[analyze] bad ai output (attempt ' + (attempt + 1) + ', stop_reason=' + (data.stop_reason || '?') + ')', text.slice(0, 300));
+      lastErr = 'ai_bad_output';
     }
-
-    const data = await aiRes.json();
-    const text = (data.content || [])
-      .filter((b) => b.type === 'text')
-      .map((b) => b.text)
-      .join('');
-
-    const result = parseJson(text);
-    if (!result || !Array.isArray(result.jobs) || result.jobs.length === 0) {
-      console.error('[analyze] bad ai output', text.slice(0, 500));
-      return res.status(502).json({ error: 'ai_bad_output' });
-    }
-
-    return res.status(200).json({ ok: true, result });
+    return res.status(502).json({ error: lastErr });
   } catch (err) {
     console.error('[analyze] failed', err);
     return res.status(500).json({ error: 'internal' });
