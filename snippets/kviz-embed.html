@@ -1,19 +1,22 @@
 <!--
-  Edit Unovac - KVIZ + KALKULATOR - GHL Embed
+  Edit Unovac - KVIZ + KALKULATOR - GHL Embed (FULL PAGE)
   INSTALL: GHL funnel/page -> dodaj Custom JS/HTML (Embed code) element ->
   pejstuj ceo ovaj fajl. Save + Publish.
 
   Sta radi:
   - Ubaci kviz (https://tibor-referral-system.vercel.app/kviz) kao iframe.
-  - Iframe sam raste/skuplja se po visini sadrzaja (kviz javlja visinu).
-  - Prosledi ime iz referral sistema (localStorage eu_signup) da bude prefill.
-  - Na promenu ekrana kviza skroluje stranicu na vrh kviza.
+  - FULL-BLEED: probija GHL kolonu i zauzima celu sirinu viewporta
+    (width:100vw + margin-left:calc(50% - 50vw)), minimum ceo ekran visine.
+  - Ofarba celu stranicu u tamnu boju kviza (#05000F) - nema belih ivica.
+  - Iframe dalje raste po visini sadrzaja (kviz javlja visinu).
+  - Prosledi ime iz referral sistema (localStorage eu_signup) za prefill.
+  - Na promenu ekrana kviza skroluje na vrh kviza.
 
   NAPOMENA: komentari bez nasih slova namerno (GHL ume da pokvari encoding).
 -->
-<div id="eu-kviz-wrap" style="width:100%;max-width:100%;">
+<div id="eu-kviz-wrap" style="width:100vw;max-width:100vw;margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);background:#05000F;">
   <iframe id="eu-kviz-frame"
-          style="width:100%;border:0;display:block;height:1000px;background:#05000F;"
+          style="width:100%;border:0;display:block;height:100vh;min-height:100vh;background:#05000F;"
           scrolling="no"
           title="Kviz"
           allow="clipboard-write"></iframe>
@@ -23,6 +26,28 @@
   var BASE = 'https://tibor-referral-system.vercel.app/kviz';
   var frame = document.getElementById('eu-kviz-frame');
   var wrap = document.getElementById('eu-kviz-wrap');
+
+  // Cela GHL stranica u boji kviza - bez belih ivica oko embeda
+  try {
+    document.documentElement.style.background = '#05000F';
+    document.body.style.background = '#05000F';
+    document.body.style.overflowX = 'hidden';
+  } catch (e) {}
+
+  // Skini padding/margine sa GHL kontejnera oko embeda (section/row/column)
+  try {
+    var p = wrap.parentElement, hops = 0;
+    while (p && p !== document.body && hops < 6) {
+      p.style.paddingTop = '0';
+      p.style.paddingBottom = '0';
+      p.style.paddingLeft = '0';
+      p.style.paddingRight = '0';
+      p.style.marginTop = '0';
+      p.style.marginBottom = '0';
+      p.style.background = '#05000F';
+      p = p.parentElement; hops++;
+    }
+  } catch (e) {}
 
   // Ime iz referral stash-a (ako je user prosao optin na ovom browseru)
   var src = BASE;
@@ -37,7 +62,10 @@
   window.addEventListener('message', function (e) {
     if (e.origin !== 'https://tibor-referral-system.vercel.app') return;
     var d = e.data || {};
-    if (d.euKvizHeight) frame.style.height = d.euKvizHeight + 'px';
+    if (d.euKvizHeight) {
+      // nikad manje od celog ekrana
+      frame.style.height = Math.max(d.euKvizHeight, window.innerHeight) + 'px';
+    }
     if (d.euKvizScroll) {
       try { wrap.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (err) {}
     }
