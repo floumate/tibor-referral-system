@@ -339,7 +339,8 @@
   const SUPABASE_ANON_KEY = 'sb_publishable_qr-AMxcW5uMNtOJSYiMPtw_-xxd1XSr';
   // Share link sa dashboarda (kopiranje) - platform varijanta sa Hyros/AEvent atribucijom.
   // Naš referral kod se dodaje kao &r=KOD na kraj. [webinar] je doslovan label po dogovoru.
-  const SHARE_BASE = 'https://uzivotrening.editunovac.com/optin?el=referral_[webinar]_url_platform&hgoal=webinar&htrafficsource=referral&source=referral';
+  // r= IDE PRVI + bez uglastih zagrada — da link preživi deljenje (aplikacije sijeku URL na "[").
+  const SHARE_PARAMS = 'el=referral_webinar_url_platform&hgoal=webinar&htrafficsource=referral&source=referral';
   const BRAND = 'Edit Unovac · Uživo Trening';
 
   // Prag za ulazak u trku + nagrade za top 3 (Tibor).
@@ -425,7 +426,7 @@
     const count = Number(data.referral_count || 0);
     const firstName = data.first_name || '';
     const refCode = data.ref_code;
-    const shareUrl = `${SHARE_BASE}&r=${refCode}`;
+    const shareUrl = `https://uzivotrening.editunovac.com/optin?r=${refCode}&${SHARE_PARAMS}`;
     const referrals = Array.isArray(data.referrals) ? data.referrals : [];
     const myRank = data.my_rank;
     const inRace = count >= THRESHOLD;

@@ -10,7 +10,9 @@
 
   (function () {
     var API_URL    = "https://tibor-referral-system.vercel.app/api/signup";
-    var SHARE_BASE = "https://uzivotrening.editunovac.com/optin?el=referral_[webinar]_url_thankyou&hgoal=webinar&htrafficsource=referral&source=referral";
+    // r= PRVI + bez uglastih zagrada - da link preživi deljenje (aplikacije sijeku URL na "[").
+    var SHARE_PARAMS = "el=referral_webinar_url_thankyou&hgoal=webinar&htrafficsource=referral&source=referral";
+    var SHARE_PREFIX = "https://uzivotrening.editunovac.com/optin?r=";
 
     var btn    = document.getElementById('tk-copy-btn');
     var label  = btn ? btn.querySelector('.tk-cta-label') : null;
@@ -48,7 +50,7 @@
       body: JSON.stringify({ email: email, name: name, ref: ref, webinarUrl: "https://uzivotrening.editunovac.com/optin" })
     })
     .then(function (res) { if (!res.ok) throw new Error('status ' + res.status); return res.json(); })
-    .then(function (data) { ready(data && data.refCode ? (SHARE_BASE + '&r=' + data.refCode) : REFERRAL_LINK, data && data.dashboardUrl); })
+    .then(function (data) { ready(data && data.refCode ? (SHARE_PREFIX + data.refCode + '&' + SHARE_PARAMS) : REFERRAL_LINK, data && data.dashboardUrl); })
     .catch(function (err) { console.error('[eu-ref] signup failed', err); ready(REFERRAL_LINK, null); });
   })();
 
