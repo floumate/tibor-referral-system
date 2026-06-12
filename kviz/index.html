@@ -31,8 +31,10 @@
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  /* pozadina SAMO na html - body mora biti providan da se vide
+     starfield/page-bg slojevi sa z-index:-1 (body bg bi ih prekrio) */
+  html { background: var(--bg); }
   html, body {
-    background: var(--bg);
     color: var(--text);
     font-family: var(--font);
     font-weight: 500;
@@ -378,7 +380,7 @@
     </div>
 
     <div class="intro-cta">
-      <button class="btn" onclick="startQuiz()">Kreni →</button>
+      <button class="btn" id="btn-start" onclick="startQuiz()" disabled>Kreni →</button>
     </div>
   </section>
 
@@ -498,6 +500,14 @@
   } catch (e) {}
 })();
 
+(function () { /* ime je obavezno - Kreni se otključava tek kad nešto upišu */
+  var inp = document.getElementById('name-input');
+  var btn = document.getElementById('btn-start');
+  function sync() { btn.disabled = !inp.value.trim(); }
+  inp.addEventListener('input', sync);
+  sync();
+})();
+
 var API_URL = '/api/analyze';
 
 /* Slovo uz svaki odgovor = MBTI os na koju se boduje (iz brief-a) */
@@ -553,6 +563,7 @@ function showScreen(id) {
 
 function startQuiz() {
   userName = (document.getElementById('name-input').value || '').trim();
+  if (!userName) return;
   current = 0;
   loadQuestion();
   showScreen('screen-question');
@@ -586,16 +597,31 @@ function updateNextButton() {
   btn.innerHTML = current === QUESTIONS.length - 1 ? 'Završi ✓' : 'Dalje →';
 }
 
+/* Klik na odgovor = selektuj + auto-next posle kratke pauze.
+   "Dalje" dugme ostaje iz estetike i za povratak nazad (useri ne znaju
+   za auto-next, a dugme sigurno prepoznaju). */
+var advancing = false;
+
 function pick(i, btn) {
   picked[current] = i;
   var all = document.querySelectorAll('#choices .choice');
   all.forEach(function (c) { c.classList.remove('selected'); });
   btn.classList.add('selected');
   updateNextButton();
+  if (advancing) return;
+  advancing = true;
+  setTimeout(function () {
+    advancing = false;
+    goNext();
+  }, 300);
 }
 
 function nextQuestion() {
-  if (picked[current] === -1) return;
+  if (picked[current] === -1 || advancing) return;
+  goNext();
+}
+
+function goNext() {
   if (current === QUESTIONS.length - 1) { finishQuiz(); return; }
   current++;
   loadQuestion();
