@@ -1,10 +1,10 @@
 <script>
-  /* ---------- Referral link: LIČNI kod iz referral sistema + kopiranje + WhatsApp share ----------
+  /* ---------- Referral link: LICNI kod iz referral sistema + kopiranje + WhatsApp share ----------
      Zamenjuje stari statični REFERRAL_LINK blok. Dizajn kartice ostaje netaknut —
-     ovo samo "oživi" dugme "Kopiraj svoj link" i WhatsApp share ličnim linkom.
+     ovo samo "oživi" dugme "Kopiraj svoj link" i WhatsApp share licnim linkom.
      Tok: optin-head je na optinu upisao prijavu + stash (localStorage eu_signup).
-     Ovde čitamo email, pozovemo /api/signup (idempotentno) i dobijemo lični ref kod. */
-  var REFERRAL_LINK = "https://uzivotrening.editunovac.com/optin"; // fallback dok ne stigne lični
+     Ovde čitamo email, pozovemo /api/signup (idempotentno) i dobijemo licni ref kod. */
+  var REFERRAL_LINK = "https://uzivotrening.editunovac.com/optin"; // fallback dok ne stigne licni
   var LINK_READY = false;
 
   (function () {
@@ -28,7 +28,7 @@
       LINK_READY = true;
       if (label) label.textContent = 'Kopiraj svoj link';
       if (wa) {
-        var msg = "Krećem na ovaj besplatni uživo trening o video editingu — pridruži se i ti: " + url;
+        var msg = "Kre\u0107em na ovaj besplatni u\u017eivo trening o video editingu \u2014 pridru\u017ei se i ti: " + url;
         wa.href = "https://wa.me/?text=" + encodeURIComponent(msg);
       }
     }
@@ -38,9 +38,9 @@
     var name  = getParam(['first_name', 'name', 'Name']) || stash.name;
     var ref   = getParam(['r', 'ref', 'Ref']) || stash.ref || getStoredRef();
 
-    if (!email) { setLink(REFERRAL_LINK); return; } // nema prijave u browseru → generički link, i dalje radi
+    if (!email) { setLink(REFERRAL_LINK); return; } // nema prijave u browseru → genericki link, i dalje radi
 
-    if (label) label.textContent = 'Pripremam tvoj link…';
+    if (label) label.textContent = 'Pripremam tvoj link\u2026';
 
     fetch(API_URL, {
       method: 'POST',
@@ -56,13 +56,13 @@
   function copyRefLink(btn) {
     var label = btn.querySelector('.tk-cta-label');
     if (!LINK_READY) {
-      if (label) { var o = label.textContent; label.textContent = 'Sačekaj sekund…'; setTimeout(function () { label.textContent = o; }, 1200); }
+      if (label) { var o = label.textContent; label.textContent = 'Sa\u010dekaj sekund\u2026'; setTimeout(function () { label.textContent = o; }, 1200); }
       return;
     }
     var done = function () {
       if (!label) return;
       var orig = label.textContent;
-      label.textContent = 'Link kopiran ✓';
+      label.textContent = 'Link kopiran \u2713';
       setTimeout(function () { label.textContent = orig; }, 2000);
     };
     if (navigator.clipboard && navigator.clipboard.writeText) {
