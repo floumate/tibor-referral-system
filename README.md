@@ -1,28 +1,28 @@
-# Edit Unovac (Tibor) — Referral System
+# Edit Unovac (Tibor) - Referral System
 
 Referral sistem za webinar prijave. Jedan signup = lični referral link. Korisnik
 deli link, prijave preko njegovog linka se broje, dashboard prikazuje broj
 dovedenih + leaderboard (top 50).
 
-Adaptirano sa naucidizajn referral sistema, Supabase-only mod (bez Kit-a —
+Adaptirano sa naucidizajn referral sistema, Supabase-only mod (bez Kit-a -
 Tibor koristi GHL/AEvent za emailove).
 
 ## Arhitektura
 
 ```
 Optin (GHL: /optin-970758)
-  └─ snippets/optin-head.html — hvata ?r=KOD → localStorage; na submit forme
+  └─ snippets/optin-head.html - hvata ?r=KOD → localStorage; na submit forme
      VALIDIRA i ODMAH šalje POST → /api/signup (referral se beleži na optinu!)
      + stash ime/email za thank-you widget
         │  custom forma redirectuje sa ?email=&phone=&first_name=
         ▼
-Application (GHL: /application-old — Typeform)
-  └─ snippets/application-head.html — stash email/ime iz URL-a → localStorage
+Application (GHL: /application-old - Typeform)
+  └─ snippets/application-head.html - stash email/ime iz URL-a → localStorage
         ▼
 Thank-you (GHL: /thank-you-cta)
-  └─ snippets/thankyou-embed.html — widget:
+  └─ snippets/thankyou-embed.html - widget:
         ├─ čita email/ime (URL → localStorage), ref kod (localStorage)
-        ├─ POST → /api/signup — idempotentan: vraća VEĆ KREIRAN ref_code sa optina
+        ├─ POST → /api/signup - idempotentan: vraća VEĆ KREIRAN ref_code sa optina
         └─ renderuje: "TVOJ REFERRAL LINK [Kopiraj]" + link na dashboard
 
 Dashboard (Vercel: / → dashboard/index.html, pristup sa ?t=TOKEN)
@@ -62,7 +62,7 @@ snippets/thankyou-embed.html   ← GHL Thank You step → custom HTML/JS element
    | `WEBINAR_LANDING_URL` | `https://uzivotrening.editunovac.com/optin-970758` |
    | `DASHBOARD_BASE_URL` | deploy URL (npr. `https://tibor-referral-system.vercel.app`) |
 
-3. Deploy. Proveri stvarni deploy URL — ako NIJE `tibor-referral-system.vercel.app`,
+3. Deploy. Proveri stvarni deploy URL - ako NIJE `tibor-referral-system.vercel.app`,
    ažuriraj `CONFIG.apiUrl` i `CONFIG.dashboardBaseUrl` u `snippets/thankyou-embed.html`
    i `DASHBOARD_BASE_URL` env var.
 
@@ -88,7 +88,7 @@ snippets/thankyou-embed.html   ← GHL Thank You step → custom HTML/JS element
 4. **Edge cases**: isti email 2x → jedan red, isti kod; `?r=GLUPOST` → prijava
    prolazi, `referred_by = null`.
 
-## Posle webinara — izbor pobednika (TOP 3)
+## Posle webinara - izbor pobednika (TOP 3)
 
 Nagrade idu 3 najbolja na lestvici. Isto što dashboard prikazuje kao Top 3:
 
@@ -118,7 +118,7 @@ update signups set reward_sent = true where email in ('...');
   trku. Dashboard ispod 5 prikazuje progress bar `X / 5`; na/iznad 5 prelazi u
   „U trci si“ stanje sa istaknutim rankom.
 - **Nagrade = TOP 3 na lestvici** (`PRIZES` u `dashboard/index.html`):
-  1. mjesto — Pronaći ću ti klijenta · 2. i 3. mjesto — 30 min 1:1 poziv sa Tiborom.
+  1. mjesto - Pronaći ću ti klijenta · 2. i 3. mjesto - 30 min 1:1 poziv sa Tiborom.
 - **Isporuka = manual** (lične nagrade). Posle webinara uzmeš top 3 sa lestvice
   (SQL gore). Nema auto-winner taga.
 
@@ -132,15 +132,15 @@ Dvije varijante razlikuju se samo po `el=` (odakle je link podijeljen):
 - **Dashboard kopiranje** (`SHARE_BASE` u `dashboard/index.html`):
   `…/optin?el=referral_[webinar]_url_platform&hgoal=webinar&htrafficsource=referral&source=referral`
 
-`[webinar]` je doslovan label po dogovoru — ako treba stvarni naziv webinara, zameni na
+`[webinar]` je doslovan label po dogovoru - ako treba stvarni naziv webinara, zameni na
 obje površine. `optin-head.html` čita samo `?r=`; ostali parametri su za Hyros.
 
 ## Gotchas
 
-- **CORS**: dozvoljeni origini su hardkodirani u `api/signup.js` (`ALLOWED_ORIGINS`) —
+- **CORS**: dozvoljeni origini su hardkodirani u `api/signup.js` (`ALLOWED_ORIGINS`) -
   dodaj novi domen ako se funnel seli.
-- **Email korisnika je jedini ključ identiteta** — ista osoba sa drugim emailom = novi red.
-- **Niko ne šalje dashboard link emailom** (nema Kit-a) — korisnik ga dobija SAMO na
+- **Email korisnika je jedini ključ identiteta** - ista osoba sa drugim emailom = novi red.
+- **Niko ne šalje dashboard link emailom** (nema Kit-a) - korisnik ga dobija SAMO na
   thank-you stranici. Ako zatreba, dodati GHL automatizaciju koja šalje link.
-- **Supabase free tier pauzira projekat posle ~7 dana neaktivnosti** — pre kampanje
+- **Supabase free tier pauzira projekat posle ~7 dana neaktivnosti** - pre kampanje
   proveri da je projekat aktivan (dashboard → Restore ako treba).

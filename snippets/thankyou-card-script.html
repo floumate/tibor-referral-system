@@ -1,6 +1,6 @@
 <script>
   /* ---------- Referral link: LICNI kod iz referral sistema + kopiranje + WhatsApp share ----------
-     Zamenjuje stari statični REFERRAL_LINK blok. Dizajn kartice ostaje netaknut —
+     Zamenjuje stari statični REFERRAL_LINK blok. Dizajn kartice ostaje netaknut -
      ovo samo "oživi" dugme "Kopiraj svoj link" i WhatsApp share licnim linkom.
      Tok: optin-head je na optinu upisao prijavu + stash (localStorage eu_signup).
      Ovde čitamo email, pozovemo /api/signup (idempotentno) i dobijemo licni ref kod. */
@@ -52,7 +52,7 @@
     .catch(function (err) { console.error('[eu-ref] signup failed', err); setLink(REFERRAL_LINK); });
   })();
 
-  // global — poziva ga onclick="copyRefLink(this)" u markup-u dugmeta
+  // global - poziva ga onclick="copyRefLink(this)" u markup-u dugmeta
   function copyRefLink(btn) {
     var label = btn.querySelector('.tk-cta-label');
     if (!LINK_READY) {

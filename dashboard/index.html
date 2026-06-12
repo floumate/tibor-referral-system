@@ -337,7 +337,7 @@
 <script>
   const SUPABASE_URL = 'https://qdllfhjlibyvwntwknkg.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_qr-AMxcW5uMNtOJSYiMPtw_-xxd1XSr';
-  // Share link sa dashboarda (kopiranje) — platform varijanta sa Hyros/AEvent atribucijom.
+  // Share link sa dashboarda (kopiranje) - platform varijanta sa Hyros/AEvent atribucijom.
   // Naš referral kod se dodaje kao &r=KOD na kraj. [webinar] je doslovan label po dogovoru.
   const SHARE_BASE = 'https://uzivotrening.editunovac.com/optin?el=referral_[webinar]_url_platform&hgoal=webinar&htrafficsource=referral&source=referral';
   const BRAND = 'Edit Unovac · Uživo Trening';
@@ -527,7 +527,7 @@
     const rows = board.map((r) => {
       const isMe = r.is_me === true;
       const top3 = r.rank <= 3;
-      const name = [r.first_name, r.last_name].filter(Boolean).join(' ') || '—';
+      const name = [r.first_name, r.last_name].filter(Boolean).join(' ') || '-';
       return `
         <li class="lb-item ${isMe ? 'me' : ''} ${top3 ? 'top-3' : ''}">
           <div class="lb-rank">${r.rank}</div>
@@ -555,7 +555,7 @@
   }
 
   function renderRefItem(r) {
-    const full = [r.first_name, r.last_name].filter(Boolean).join(' ') || '—';
+    const full = [r.first_name, r.last_name].filter(Boolean).join(' ') || '-';
     return `
       <li class="ref-item">
         <div class="ref-item-main">

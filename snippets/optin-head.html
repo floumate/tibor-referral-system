@@ -1,5 +1,5 @@
 <!--
-  Edit Unovac · Uživo Trening — OPTIN page — Referral Capture + Signup Tracking
+  Edit Unovac · Uživo Trening - OPTIN page - Referral Capture + Signup Tracking
   (https://uzivotrening.editunovac.com/optin)
 
   INSTALL (bilo gde od ova dva, oba rade):
@@ -10,11 +10,11 @@
   Šta radi:
   1. Čita ?r=KOD iz URL-a (referral kod) i čuva ga u localStorage (preživljava ceo funnel).
   2. Na submit optin forme: validira ime/email (+ honeypot anti-bot) i ODMAH šalje
-     prijavu u referral sistem (/api/signup) — referral se beleži na optinu, ne na
+     prijavu u referral sistem (/api/signup) - referral se beleži na optinu, ne na
      thank-you. API je idempotentan: isti email uvek dobija isti ref kod, bez duplikata.
-  3. Stash ime/email u localStorage — thank-you widget ih čita da prikaže lični link.
+  3. Stash ime/email u localStorage - thank-you widget ih čita da prikaže lični link.
 
-  NE dira AEvent/Hyros/redirect — zaseban submit listener (capture faza), keepalive
+  NE dira AEvent/Hyros/redirect - zaseban submit listener (capture faza), keepalive
   fetch preživljava redirect na application stranicu.
 -->
 <script>
@@ -46,7 +46,7 @@
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
   }
 
-  // 2. Na submit BILO KOJE forme (delegacija na document, capture faza — hvata i
+  // 2. Na submit BILO KOJE forme (delegacija na document, capture faza - hvata i
   //    forme koje GHL renderuje dinamički): validiraj pa upiši prijavu.
   function onSubmit(e) {
     var form = e.target;
@@ -63,7 +63,7 @@
       var name = ((nameEl && nameEl.value) || '').trim();
 
       // Ista pravila kao validacija optin forme: ime + validan email,
-      // a ako forma ima polje za telefon — bar 6 cifara.
+      // a ako forma ima polje za telefon - bar 6 cifara.
       if (!name || !email || !isValidEmail(email)) return;
       if (phoneEl && ((phoneEl.value || '').replace(/\D/g, '').length < 6)) return;
 
@@ -82,7 +82,7 @@
         if (localStorage.getItem(SENT_STORAGE) === email) return;
       } catch (err) {}
 
-      // Upis prijave — fire-and-forget, keepalive preživljava redirect
+      // Upis prijave - fire-and-forget, keepalive preživljava redirect
       fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
