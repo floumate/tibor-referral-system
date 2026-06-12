@@ -35,7 +35,9 @@ Dashboard (Vercel: / → dashboard/index.html, pristup sa ?t=TOKEN)
 ```
 supabase/schema.sql            ← pokreni JEDNOM u Supabase SQL Editor-u
 api/signup.js                  ← Vercel serverless function (POST /api/signup)
+api/analyze.js                 ← Vercel serverless function (POST /api/analyze) - AI analiza kviza
 dashboard/index.html           ← dashboard + leaderboard (servira se na /?t=TOKEN)
+kviz/index.html                ← AI kviz + kalkulator zarade (servira se na /kviz)
 snippets/optin-head.html       ← GHL Optin step → head tracking code
 snippets/application-head.html ← GHL Application step → head tracking code
 snippets/thankyou-embed.html   ← GHL Thank You step → custom HTML/JS element
@@ -134,6 +136,33 @@ Dvije varijante razlikuju se samo po `el=` (odakle je link podijeljen):
 
 `[webinar]` je doslovan label po dogovoru - ako treba stvarni naziv webinara, zameni na
 obje površine. `optin-head.html` čita samo `?r=`; ostali parametri su za Hyros.
+
+## AI kviz + kalkulator (/kviz)
+
+Nagrada za 5 preporuka (brief: `brief-kviz-kalkulator`). Stranica `/kviz` vodi korisnika kroz:
+
+1. **Kviz** - 8 MBTI pitanja (2 po osi, iz brief-a) + 4 domain pitanja (sati tjedno,
+   kreativa vs. pričanje, svoja vještina vs. tuđi offer, brzo vs. dugoročno).
+2. **AI analiza** (`POST /api/analyze`) - Claude API server-side generira: tip osobnosti
+   + nadimak, personality readout, rang listu 5 online poslova (score, zašto, zarada,
+   plusevi/minusi) i prijelaznu rečenicu u kalkulator. `temperature: 1` + ime + random
+   seed = svaki korisnik dobija DRUGAČIJI tekst i brojke (prijatelji porede rezultate!).
+   Edge case iz brief-a: ako odgovori stvarno ne pašu editingu, AI ne forsira editing.
+   Ako AI padne/nema ključa, frontend ima lokalni fallback pa stranica uvek radi.
+3. **Kalkulator zarade** - default `55.5€ x 30 videa x 2 klijenta = 3.330€ mjesečno`
+   → dnevno tačno **111€** (kampanja je obećala 111, zato 55.5 a ne 55).
+4. **CTA** - podsetnik na webinar.
+
+Env vars (Vercel):
+
+| Variable | Vrednost |
+|---|---|
+| `ANTHROPIC_API_KEY` | `sk-ant-...` (console.anthropic.com → API keys) |
+| `ANTHROPIC_MODEL` | opciono, default `claude-haiku-4-5-20251001` |
+
+Otključavanje na 5 dovedenih: link na `/kviz` se šalje kroz GHL winner workflow
+(GHL_WINNER_TAG u `api/signup.js` okida na pragu 5) - stranica je noindex i ne
+linkuje se javno.
 
 ## Gotchas
 
