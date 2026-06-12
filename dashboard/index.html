@@ -432,12 +432,12 @@
     const remaining = Math.max(0, THRESHOLD - count);
     const pct = Math.min(100, Math.round((count / THRESHOLD) * 100));
 
-    const greeting = firstName ? `Pozdrav, ${escapeHtml(firstName)}!` : 'Pozdrav!';
+    const greeting = firstName ? `Pozdrav, ${escapeHtml(vokativ(firstName))}!` : 'Pozdrav!';
     const subtitle = inRace
-      ? 'U utrci si za nagrade! Sad se penji na ljestvici, <strong>top 3 osvajaju</strong>. Svaka nova prijava te gura prema vrhu.'
+      ? 'Bravo, osvojio/la si nagradu! Nastavi - <strong>top 3 na ljestvici</strong> osvajaju i glavne nagrade. Svaka nova prijava te gura prema vrhu.'
       : (count === 0
-          ? `Dovedi <strong>${THRESHOLD} prijave</strong> preko svog linka i ulaziš u utrku za nagrade. Kreni, treba ti samo jedan klik na „Kopiraj“.`
-          : `Još <strong>${remaining} ${plural(remaining)}</strong> i ulaziš u utrku za nagrade. Skoro si tu.`);
+          ? `Dovedi <strong>${THRESHOLD} osoba</strong> preko svog linka i osvoji nagradu. Kreni, treba ti samo jedan klik na „Kopiraj“.`
+          : `Još <strong>${remaining} ${plural(remaining)}</strong> i osvajaš nagradu. Skoro si tu.`);
 
     // glavni broj: X / 5 dok ne uđe u trku, čist broj kad uđe
     const numBlock = inRace
@@ -446,13 +446,13 @@
 
     const sideBlock = inRace && myRank
       ? `<div class="progress-rank"><span class="rank-big">#${myRank}</span><span class="rank-cap">tvoje mjesto</span></div>`
-      : (inRace ? `<span class="race-pill"><span class="dot"></span>U utrci</span>` : '');
+      : '';
 
     const barBlock = inRace
-      ? `<span class="race-pill" style="margin-top:18px"><span class="dot"></span>Cilj od ${THRESHOLD} dostignut</span>`
+      ? `<span class="race-pill" style="margin-top:18px"><span class="dot"></span>Nagrada osvojena</span>`
       : `<div class="progress-bar"><div class="progress-fill" id="pfill"></div></div>`;
 
-    const caption = inRace ? 'prijava preko tvog linka' : 'prijava do ulaska u utrku';
+    const caption = inRace ? 'prijava preko tvog linka' : 'prijava do nagrade';
 
     const prizesBlock = renderPrizes(myRank, inRace);
     const leaderboardBlock = renderLeaderboard(board, myRank, count);
@@ -514,7 +514,7 @@
     }).join('');
     return `
       <div class="card">
-        <div class="card-label">Nagrade · Top 3 na ljestvici</div>
+        <div class="card-label">Glavne nagrade · Top 3 na ljestvici</div>
         <ul class="prize-list">${rows}</ul>
       </div>`;
   }
@@ -592,6 +592,21 @@
     app.innerHTML = `
       <div class="error-box">${escapeHtml(msg)}</div>
     `;
+  }
+
+  function vokativ(ime) {
+    if (!ime) return '';
+    const n = String(ime).trim();
+    if (!n) return n;
+    const low = n.toLowerCase();
+    // nepravilni (nepostojano a)
+    const exc = { 'petar': 'Petre', 'aleksandar': 'Aleksandre' };
+    if (exc[low]) return exc[low];
+    const last = low.charAt(low.length - 1);
+    // imena na samoglasnik (Marko, Đorđe, Ana, Nikola, Luka) ostaju u nominativu
+    if ('aeiou'.indexOf(last) >= 0) return n;
+    // imena na suglasnik dobijaju -e (Dušan->Dušane, Stefan->Stefane, Ivan->Ivane)
+    return n + 'e';
   }
 
   function plural(n) {
