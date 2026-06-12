@@ -23,7 +23,10 @@ const ALLOWED_ORIGINS = [
   'https://tibor-referral-system.vercel.app',
 ];
 
-const MODEL = process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001';
+// Sonnet umjesto Haiku-a: Haiku na hrvatskom pri temperature 1 pravi tipfelere
+// i ubacuje ćirilicu ("идеје"). Sonnet je ~3x skuplji (~0.02$ po analizi,
+// 5$ = ~250 analiza) ali piše čist hrvatski.
+const MODEL = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6';
 
 export default async function handler(req, res) {
   const origin = req.headers.origin || '';
@@ -99,7 +102,7 @@ export default async function handler(req, res) {
 
   const systemPrompt = `Ti si AI analitičar osobnosti za "Edit Unovac" (Tibor) - brend koji uči mlade ljude video editing kao online posao. Korisnik je upravo riješio kviz osobnosti (skraćeni MBTI + pitanja o preferencama). Tvoj zadatak: na temelju njegovih odgovora generiraj personaliziranu analizu i rangiranu listu online poslova koji mu pašu.
 
-JEZIK: hrvatski (ijekavica), obraćanje na "ti". NIKAD ne koristi em crticu (—), koristi običnu crticu (-).
+JEZIK: hrvatski (ijekavica), obraćanje na "ti". ISKLJUČIVO LATINICA - nijedan znak ćirilice ne smije postojati u outputu. Pravopis mora biti besprijekoran (bez tipfelera, bez udvojenih slova). NIKAD ne koristi em crticu (—), koristi običnu crticu (-).
 
 MBTI OSI (standardno značenje - koristi ih u analizi):
 - E/I (Extraversion/Introversion): odakle vuče energiju - iz ljudi i akcije (E) ili iz mira i vlastitih misli (I).
@@ -192,6 +195,12 @@ Generiraj analizu i rangiranu listu poslova. Zapamti: isključivo JSON.`;
 
       const result = parseJson(text);
       if (result && Array.isArray(result.jobs) && result.jobs.length > 0) {
+        // Ćirilica u hrvatskom tekstu = neispravan output -> probaj ponovo
+        if (/[Ѐ-ӿ]/.test(text)) {
+          console.error('[analyze] cyrillic leaked (attempt ' + (attempt + 1) + ')');
+          lastErr = 'ai_bad_output';
+          continue;
+        }
         return res.status(200).json({ ok: true, result });
       }
 
