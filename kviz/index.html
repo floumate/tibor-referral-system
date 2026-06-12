@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="robots" content="noindex, nofollow" />
-<title>Tvoj Online Posao · Edit Unovac</title>
+<title>Tvoj Online Posao</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -59,14 +59,13 @@
 
   main { max-width: 680px; margin: 0 auto; padding: 44px 20px 88px; }
 
-  .brand {
-    display: inline-block;
-    font-size: 12.5px; font-weight: 600;
-    letter-spacing: 0.14em; text-transform: uppercase;
-    background: var(--grad-text);
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 22px;
+  /* zvjezdice preko cijele stranice - isti efekt kao optin landing */
+  .starfield {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    z-index: -1;
+    pointer-events: none;
   }
 
   h1 {
@@ -353,15 +352,15 @@
     .card { padding: 22px 18px; }
     .q-nav { flex-direction: column-reverse; gap: 10px; }
     .q-nav .btn-ghost { width: 100%; }
+    .q-nav .btn { width: 100%; }
   }
 </style>
 </head>
 <body>
 <div class="page-bg"></div>
+<div class="starfield" id="starfield" aria-hidden="true"></div>
 
 <main>
-  <span class="brand">Edit Unovac · Uživo Trening</span>
-
   <!-- ============ INTRO ============ -->
   <section class="screen active" id="screen-intro">
     <h1>Koji online posao je za tebe?</h1>
@@ -396,7 +395,7 @@
 
     <div class="q-nav">
       <button class="btn-ghost" id="btn-back" onclick="prevQuestion()">← Natrag</button>
-      <span></span>
+      <button class="btn" id="btn-next" onclick="nextQuestion()" disabled>Dalje →</button>
     </div>
   </section>
 
@@ -528,7 +527,7 @@ var QUESTIONS = [
     { t: 'Kad imaš rok', v: 'J' },
     { t: 'Kad ideš svojim tempom', v: 'P' }] },
   { sec: 'Tvoj stil', q: 'Koliko sati tjedno realno možeš odvojiti za ovo?', hours: true, opts: [
-    { t: 'Do 5h' }, { t: '5-10h' }, { t: '10-20h' }, { t: '20h+' }] },
+    { t: 'do 5h' }, { t: '5-10h' }, { t: '10-20h' }, { t: '20h+' }] },
   { sec: 'Tvoj stil', q: 'Što ti je draže:', opts: [
     { t: 'Stvarati nešto svoje (video, dizajn...)' },
     { t: 'Pričati i dogovarati s ljudima' }] },
@@ -577,6 +576,14 @@ function loadQuestion() {
     b.onclick = function () { pick(i, b); };
     box.appendChild(b);
   });
+
+  updateNextButton();
+}
+
+function updateNextButton() {
+  var btn = document.getElementById('btn-next');
+  btn.disabled = picked[current] === -1;
+  btn.innerHTML = current === QUESTIONS.length - 1 ? 'Završi ✓' : 'Dalje →';
 }
 
 function pick(i, btn) {
@@ -584,11 +591,14 @@ function pick(i, btn) {
   var all = document.querySelectorAll('#choices .choice');
   all.forEach(function (c) { c.classList.remove('selected'); });
   btn.classList.add('selected');
-  setTimeout(function () {
-    if (current === QUESTIONS.length - 1) { finishQuiz(); return; }
-    current++;
-    loadQuestion();
-  }, 240);
+  updateNextButton();
+}
+
+function nextQuestion() {
+  if (picked[current] === -1) return;
+  if (current === QUESTIONS.length - 1) { finishQuiz(); return; }
+  current++;
+  loadQuestion();
 }
 
 function prevQuestion() {
@@ -603,10 +613,11 @@ function computeMbti() {
     var v = QUESTIONS[i].opts[picked[i]].v;
     score[v]++;
   }
-  return (score.E >= score.I ? 'E' : 'I') +
-         (score.S >= score.N ? 'S' : 'N') +
-         (score.T >= score.F ? 'T' : 'F') +
-         (score.J >= score.P ? 'J' : 'P');
+  /* 2 pitanja po osi; nerešeno (1-1) po standardnom MBTI pravilu ide u I/N/F/P */
+  return (score.E > score.I ? 'E' : 'I') +
+         (score.S > score.N ? 'S' : 'N') +
+         (score.T > score.F ? 'T' : 'F') +
+         (score.J > score.P ? 'J' : 'P');
 }
 
 var LOADING_MSGS = [
@@ -701,34 +712,72 @@ function renderResults(r) {
 }
 
 /* Fallback ako AI server nije dostupan - rezultat se ipak prikaže.
-   Blaga randomizacija brojki da ni fallback ne bude svima isti. */
+   Randomizirane su i brojke I formulacije (više varijanti po slotu),
+   da ni fallback ne izgleda isto dvjema osobama. */
 function localFallback(mbti, hours) {
   var jitter = function (base, spread) { return base + Math.floor(Math.random() * spread); };
+  var pickOne = function (arr) { return arr[Math.floor(Math.random() * arr.length)]; };
   var intro = mbti.charAt(0) === 'I';
-  var nick = { I: 'Tihi Graditelj', E: 'Pokretač' }[mbti.charAt(0)];
   var name = userName ? userName + ', ' : '';
-  var editWhy = intro
-    ? 'Radiš od doma, u svom miru, bez sastanaka i bez da ikome moraš išta pričati. Tvoj fokus je tvoja najveća prednost - a editing je posao gdje se fokus direktno pretvara u novac.'
-    : 'Izražavaš se kroz video i tvoja energija se vidi u svakom rezu. Editing ti je i prirodan stepping stone prema videografiji - snimaš poduzetnike i ulaziš u jak krug ljudi.';
-  var sEdit = jitter(86, 9), s2 = jitter(64, 9), s3 = jitter(55, 9), s4 = jitter(46, 9), s5 = jitter(34, 9);
+
+  var nick = pickOne(intro
+    ? ['Tihi Graditelj', 'Fokusirani Stvaratelj', 'Samostalni Igrač']
+    : ['Pokretač', 'Energija Ekipe', 'Prirodni Izvođač']);
+
+  var editWhy = pickOne(intro ? [
+    'Radiš od doma, u svom miru, bez sastanaka i bez da ikome moraš išta pričati. Tvoj fokus je tvoja najveća prednost - a editing je posao gdje se fokus direktno pretvara u novac.',
+    'Editing je posao koji se radi u tišini, svojim tempom, iza ekrana - točno okruženje u kojem ti funkcioniraš najbolje. Što dublje uđeš u fokus, više vrijediš.',
+    'Ne moraš zvati nepoznate ljude ni sjediti na sastancima - sjedneš, montiraš, isporučiš. Za nekoga tko se puni u miru, teško da postoji prirodniji online posao.'
+  ] : [
+    'Izražavaš se kroz video i tvoja energija se vidi u svakom rezu. Editing ti je i prirodan stepping stone prema videografiji - snimaš poduzetnike i ulaziš u jak krug ljudi.',
+    'Tvoja energija traži izlaz, a video je danas najjači kanal za to. Kreneš s editingom, a vrlo brzo se otvore snimanja i suradnje s poduzetnicima - krug ljudi kakav drugdje teško nađeš.',
+    'Voliš ljude i izražavanje, a editing ti daje oboje: kroz tuđe priče gradiš svoj stil, a s vremenom prelaziš u videografiju gdje si ti taj koji drži kameru i kontakte.'
+  ]);
+
+  var readout = pickOne([
+    name + 'tvoji odgovori pokazuju da si ' + (intro ? 'osoba kojoj paše samostalan rad, mir i kontrola nad svojim vremenom' : 'osoba koja se puni energijom kroz ljude i izražavanje') + '. Imaš ' + hours + ' tjedno na raspolaganju, što je sasvim dovoljno za ozbiljan start - bitnije je kako koristiš sate nego koliko ih imaš.',
+    name + 'iz odgovora se vidi jedna jasna stvar: ' + (intro ? 'najbolji si kad imaš mir, svoj prostor i kontrolu nad danom' : 'najjači si kad si u kontaktu s ljudima i kad se imaš gdje izraziti') + '. Sa ' + hours + ' tjedno možeš napraviti puno više nego što misliš - pod uvjetom da sate uložiš u jednu vještinu, ne u pet.',
+    name + 'tvoj profil je prilično jasan: ' + (intro ? 'samostalnost ti nije želja nego potreba - radiš najbolje bez nadzora i buke' : 'energiju vučeš iz ljudi i ideja, i to je tvoj motor') + '. ' + hours + ' tjedno zvuči malo, ali konzistentnost lomi talent - i tu možeš pobijediti.'
+  ]);
+
+  var transition = pickOne([
+    'Ok' + (userName ? ', ' + userName : '') + ' - sad kad znaš da ti editing najbolje paše, da vidimo koliko konkretno možeš zaraditi.',
+    (userName ? userName + ', s' : 'S') + 'ad dolazi zabavni dio - pretvorimo ovo u konkretne brojke. Koliko editing realno donosi?',
+    'Analiza je gotova' + (userName ? ', ' + userName : '') + '. Idemo na ono što te stvarno zanima: koliko se na ovome zarađuje.'
+  ]);
+
+  var sEdit = jitter(85, 11), s2 = jitter(62, 11), s3 = jitter(53, 11), s4 = jitter(44, 11), s5 = jitter(32, 11);
+
   return {
     type: mbti,
     nickname: nick,
-    readout: name + 'tvoji odgovori pokazuju da si ' + (intro ? 'osoba kojoj paše samostalan rad, mir i kontrola nad svojim vremenom' : 'osoba koja se puni energijom kroz ljude i izražavanje') + '. Imaš ' + hours + ' tjedno na raspolaganju, što je sasvim dovoljno za ozbiljan start - bitnije je kako koristiš sate nego koliko ih imaš.',
+    readout: readout,
     jobs: [
-      { name: 'Video Editing', score: sEdit, why: editWhy, earnings: jitter(450, 120) + ' - ' + jitter(2400, 800) + ' € mjesečno',
+      { name: 'Video Editing', score: sEdit, why: editWhy, earnings: jitter(420, 180) + ' - ' + jitter(2200, 1100) + ' € mjesečno',
         pros: ['Vještina koja je samo tvoja - nitko ti je ne može uzeti', 'Visok strop: od prvog klijenta do agencije', 'AI te ne mijenja, nego te čini bržim i vrjednijim'],
         cons: ['Treba 30-60 dana ozbiljnog učenja prije prvih para'] },
-      { name: 'Copywriting', score: s2, why: 'Pisanje prodajnih tekstova ti može pasati, ali tržište je prepuno i teško se izdvojiti bez rezultata iza sebe.', earnings: jitter(280, 100) + ' - ' + jitter(1400, 500) + ' € mjesečno',
+      { name: 'Copywriting', score: s2, why: pickOne([
+          'Pisanje prodajnih tekstova ti može pasati, ali tržište je prepuno i teško se izdvojiti bez rezultata iza sebe.',
+          'Copy zna biti dobar posao, ali ulaz je brutalan: svi pišu, malo tko naplaćuje ozbiljno, a bez portfelja te nitko ne shvaća ozbiljno.'
+        ]), earnings: jitter(260, 140) + ' - ' + jitter(1300, 600) + ' € mjesečno',
         pros: ['Treba ti samo laptop', 'Dobra podloga za marketing'], cons: ['Ogromna konkurencija', 'AI piše sve više osnovnog copyja'] },
-      { name: 'Social Media Management', score: s3, why: 'Vođenje profila brendovima zvuči zabavno, ali u praksi je puno dopisivanja, gašenja požara i ovisiš o tuđim odlukama.', earnings: jitter(250, 100) + ' - ' + jitter(1100, 400) + ' € mjesečno',
+      { name: 'Social Media Management', score: s3, why: pickOne([
+          'Vođenje profila brendovima zvuči zabavno, ali u praksi je puno dopisivanja, gašenja požara i ovisiš o tuđim odlukama.',
+          'SMM izgleda kreativno izvana, a iznutra je kalendar objava, odgovaranje na poruke i klijenti koji mijenjaju mišljenje svaki tjedan.'
+        ]), earnings: jitter(230, 140) + ' - ' + jitter(1000, 500) + ' € mjesečno',
         pros: ['Lako se ulazi', 'Radiš s više brendova'], cons: ['Stalno moraš biti online', 'Klijenti često ne znaju što žele'] },
-      { name: 'Web Design', score: s4, why: 'Kreativan posao, ali ciklusi su dugi - projekt se dogovara tjednima, a alati poput AI buildera spuštaju cijene.', earnings: jitter(350, 150) + ' - ' + jitter(1600, 600) + ' € mjesečno',
+      { name: 'Web Design', score: s4, why: pickOne([
+          'Kreativan posao, ali ciklusi su dugi - projekt se dogovara tjednima, a alati poput AI buildera spuštaju cijene.',
+          'Lijep posao kad uhvatiš klijente, ali prodajni ciklus je spor, revizije beskonačne, a AI builderi svake godine obaraju cijene.'
+        ]), earnings: jitter(320, 180) + ' - ' + jitter(1500, 700) + ' € mjesečno',
         pros: ['Dobra zarada po projektu'], cons: ['Dug prodajni ciklus', 'AI builderi obaraju cijene'] },
-      { name: 'Appointment Setting', score: s5, why: 'Zakazivanje poziva za tuđi biznis - brz ulaz, ali repetitivno, ovisiš o tuđem offeru i AI ovakve poslove mijenja prvi.', earnings: jitter(200, 80) + ' - ' + jitter(900, 300) + ' € mjesečno',
+      { name: 'Appointment Setting', score: s5, why: pickOne([
+          'Zakazivanje poziva za tuđi biznis - brz ulaz, ali repetitivno, ovisiš o tuđem offeru i AI ovakve poslove mijenja prvi.',
+          'Brzo se uđe i brzo dosadi: cijeli dan iste poruke, zarada ovisi o tuđem proizvodu, a upravo ovakve poslove AI prvi preuzima.'
+        ]), earnings: jitter(180, 100) + ' - ' + jitter(850, 350) + ' € mjesečno',
         pros: ['Ne treba tehnička vještina'], cons: ['Dosadno i repetitivno', 'Ovisiš o tuđem proizvodu', 'AI ga lako mijenja'] }
     ],
-    transition: 'Ok' + (userName ? ', ' + userName : '') + ' - sad kad znaš da ti editing najbolje paše, da vidimo koliko konkretno možeš zaraditi.'
+    transition: transition
   };
 }
 
@@ -769,6 +818,65 @@ function esc(s) {
     return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
   });
 }
+
+/* ---- Zvjezdice - statične, po cijelom pageu (isti efekt kao optin landing) ---- */
+(function () {
+  var el = document.getElementById('starfield');
+  if (!el) return;
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var TILE_H = 1400; /* visina tile-a koji se ponavlja vertikalno */
+
+  function pageHeight() {
+    return Math.max(
+      document.body.scrollHeight, document.documentElement.scrollHeight,
+      document.body.offsetHeight, window.innerHeight
+    );
+  }
+
+  function buildTile(W) {
+    var c = document.createElement('canvas');
+    c.width = Math.round(W * dpr);
+    c.height = Math.round(TILE_H * dpr);
+    var ctx = c.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    function star(x, y, r, op) {
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(232,240,255,' + op.toFixed(3) + ')';
+      ctx.fill();
+    }
+    var n = Math.max(40, Math.round(W * TILE_H / 13000));
+    for (var i = 0; i < n; i++) {
+      var x = Math.random() * W;
+      var y = Math.random() * TILE_H;
+      var r = 0.5 + Math.random() * 1.2;
+      var op = 0.10 + Math.random() * 0.5;
+      star(x, y, r, op);
+      if (y < 2) star(x, y + TILE_H, r, op);
+      else if (y > TILE_H - 2) star(x, y - TILE_H, r, op);
+    }
+    return c.toDataURL();
+  }
+
+  function apply() {
+    var W = document.documentElement.clientWidth || window.innerWidth;
+    el.style.height = pageHeight() + 'px';
+    el.style.backgroundImage = 'url(' + buildTile(W) + ')';
+    el.style.backgroundRepeat = 'repeat-y';
+    el.style.backgroundSize = '100% ' + TILE_H + 'px';
+    el.style.backgroundPosition = 'top center';
+  }
+
+  apply();
+  window.addEventListener('load', apply);
+  var rt;
+  window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(apply, 250); });
+  /* visina stranice se mijenja kad se mijenjaju ekrani kviza */
+  var ht = setInterval(function () {
+    var h = pageHeight();
+    if (parseInt(el.style.height, 10) !== h) el.style.height = h + 'px';
+  }, 800);
+})();
 </script>
 </body>
 </html>
