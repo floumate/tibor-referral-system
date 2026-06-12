@@ -1,16 +1,21 @@
 <!--
   Edit Unovac · Uživo Trening — OPTIN page — Referral Capture + Signup Tracking
-  (https://uzivotrening.editunovac.com/optin-970758)
+  (https://uzivotrening.editunovac.com/optin)
 
-  INSTALL: GHL funnel → Settings → Tracking & scripts → Head tracking code.
-  Save + Publish. (Funnel-wide — bezbedno na svim stranicama.)
+  INSTALL (bilo gde od ova dva, oba rade):
+   A) GHL funnel/page → Settings → Tracking & scripts → Head tracking code, ili
+   B) na sam KRAJ optin Custom HTML/Code elementa.
+  Save + Publish.
 
   Šta radi:
   1. Čita ?r=KOD iz URL-a (referral kod) i čuva ga u localStorage (preživljava ceo funnel).
-  2. Na submit optin forme: validira ime/email i ODMAH šalje prijavu u referral
-     sistem (/api/signup) — referral se beleži na optinu, ne na thank-you stranici.
-     API je idempotentan: isti email uvek dobija isti ref kod, nema duplikata.
+  2. Na submit optin forme: validira ime/email (+ honeypot anti-bot) i ODMAH šalje
+     prijavu u referral sistem (/api/signup) — referral se beleži na optinu, ne na
+     thank-you. API je idempotentan: isti email uvek dobija isti ref kod, bez duplikata.
   3. Stash ime/email u localStorage — thank-you widget ih čita da prikaže lični link.
+
+  NE dira AEvent/Hyros/redirect — zaseban submit listener (capture faza), keepalive
+  fetch preživljava redirect na application stranicu.
 -->
 <script>
 (function () {
@@ -19,7 +24,7 @@
   var SENT_STORAGE = 'eu_signup_sent';
   var QUERY_PARAM = 'r';
   var API_URL = 'https://tibor-referral-system.vercel.app/api/signup';
-  var WEBINAR_URL = 'https://uzivotrening.editunovac.com/optin-970758';
+  var WEBINAR_URL = 'https://uzivotrening.editunovac.com/optin';
 
   // 1. Capture ?r= iz URL-a → localStorage
   try {
@@ -41,12 +46,16 @@
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
   }
 
-  // 2. Na submit bilo koje forme: validiraj pa upiši prijavu u referral sistem.
-  //    Capture faza — okida se i kad forma koristi sopstveni fetch submit.
+  // 2. Na submit BILO KOJE forme (delegacija na document, capture faza — hvata i
+  //    forme koje GHL renderuje dinamički): validiraj pa upiši prijavu.
   function onSubmit(e) {
-    var form = e.target || this;
-    if (!form || !form.querySelector) return;
+    var form = e.target;
+    if (!form || form.tagName !== 'FORM' || !form.querySelector) return;
     try {
+      // Honeypot: ako je skriveno polje popunjeno → bot, preskoči (isto kao optin forma).
+      var hp = form.querySelector('input[name="website"]');
+      if (hp && (hp.value || '').trim() !== '') return;
+
       var emailEl = form.querySelector('input[type="email"], input[name="email"], input[name="Email"]');
       var nameEl = form.querySelector('input[name="name"], input[name="Name"], input[autocomplete="name"]');
       var phoneEl = form.querySelector('input[type="tel"], input[name="phone"]');
@@ -92,17 +101,6 @@
     } catch (err) {}
   }
 
-  function attach() {
-    var forms = document.querySelectorAll('form');
-    for (var i = 0; i < forms.length; i++) {
-      forms[i].addEventListener('submit', onSubmit, true);
-    }
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', attach);
-  } else {
-    attach();
-  }
+  document.addEventListener('submit', onSubmit, true);
 })();
 </script>
