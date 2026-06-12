@@ -88,28 +88,52 @@ snippets/thankyou-embed.html   ← GHL Thank You step → custom HTML/JS element
 4. **Edge cases**: isti email 2x → jedan red, isti kod; `?r=GLUPOST` → prijava
    prolazi, `referred_by = null`.
 
-## Posle webinara — izvlačenje pobednika/nagrada
+## Posle webinara — izbor pobednika (TOP 3)
+
+Nagrade idu 3 najbolja na lestvici. Isto što dashboard prikazuje kao Top 3:
 
 ```sql
--- svi sa bar N dovedenih (zameni 5 pravim pragom):
+-- TOP 3 po broju dovedenih:
 select s.email, s.first_name, s.last_name, s.ref_code,
        (select count(*) from signups x where x.referred_by = s.ref_code) as cnt
 from signups s
+where (select count(*) from signups x where x.referred_by = s.ref_code) >= 1
+order by cnt desc, s.first_name
+limit 3;
+
+-- (opciono) svi koji su prešli prag od 5 = ušli u trku:
+select s.email, s.first_name, s.ref_code,
+       (select count(*) from signups x where x.referred_by = s.ref_code) as cnt
+from signups s
 where (select count(*) from signups x where x.referred_by = s.ref_code) >= 5
-  and s.reward_sent = false
 order by cnt desc;
 
 -- označi isporučene nagrade:
 update signups set reward_sent = true where email in ('...');
 ```
 
-## Placeholderi (čeka se Tibor)
+## Mehanika i nagrade (Tibor, finalno)
 
-- **Prag/nagrada**: `REWARD_TEXT` u `dashboard/index.html` + tekst u thankyou widgetu.
-- **Landing URL**: trenutno stari page (`/optin-970758`) — pri prelasku na novi
-  webinar page promeni `WEBINAR_LANDING_URL` (Vercel env), `CONFIG.webinarUrl`
-  (thankyou-embed) i `WEBINAR_LANDING_URL` (dashboard/index.html), i preseli snippete
-  u nove funnel stepove.
+- **Prag = 5** (`THRESHOLD` u `dashboard/index.html`): dovedeš 5 prijava → ulaziš u
+  trku. Dashboard ispod 5 prikazuje progress bar `X / 5`; na/iznad 5 prelazi u
+  „U trci si“ stanje sa istaknutim rankom.
+- **Nagrade = TOP 3 na lestvici** (`PRIZES` u `dashboard/index.html`):
+  1. mjesto — Pronaći ću ti klijenta · 2. i 3. mjesto — 30 min 1:1 poziv sa Tiborom.
+- **Isporuka = manual** (lične nagrade). Posle webinara uzmeš top 3 sa lestvice
+  (SQL gore). Nema auto-winner taga.
+
+## Share linkovi (Hyros/AEvent atribucija)
+
+Share link = bazni optin URL (`/optin`) sa atribucijskim parametrima + naš `&r=KOD`.
+Dvije varijante razlikuju se samo po `el=` (odakle je link podijeljen):
+
+- **Thank-you widget** (`CONFIG.shareBase` u `snippets/thankyou-embed.html`):
+  `…/optin?el=referral_[webinar]_url_thankyou&hgoal=webinar&htrafficsource=referral&source=referral`
+- **Dashboard kopiranje** (`SHARE_BASE` u `dashboard/index.html`):
+  `…/optin?el=referral_[webinar]_url_platform&hgoal=webinar&htrafficsource=referral&source=referral`
+
+`[webinar]` je doslovan label po dogovoru — ako treba stvarni naziv webinara, zameni na
+obje površine. `optin-head.html` čita samo `?r=`; ostali parametri su za Hyros.
 
 ## Gotchas
 

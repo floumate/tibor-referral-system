@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="sr">
+<html lang="hr">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,57 +7,92 @@
 <title>Moj referral · Edit Unovac — Uživo Trening</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+  /* =========================================================
+     Dizajn 1:1 sa ecomtalent / Tibor optin (vidi tibor-optin/DESIGN.md)
+     ========================================================= */
   :root {
-    --bg: #0a0403;
-    --card: #181009;
-    --card-border: #2b2014;
-    --line: #2b2014;
-    --muted: #8c8273;
-    --text-primary: #f5efe4;
-    --text-dim: #a99e8d;
-    --gold: #e8a838;
-    --gold-hover: #d4982f;
-    --gold-dark: #6b4e1c;
+    --bg: #05000F;
+    --card: #0E0B14;
+    --heading: #FFFFFF;
+    --text: #ABB1BA;
+    --muted: #757589;
+    --cyan: #00D0FF;
+    --blue: #0066FF;
+    --ring: rgba(1, 115, 255, 0.20);
+    --surface: rgba(255, 255, 255, 0.06);
+    --border: rgba(255, 255, 255, 0.08);
+    --grad: linear-gradient(180deg, #00D0FF 0%, #0066FF 100%);
+    --grad-text: linear-gradient(331deg, #00D0FF 0%, #0066FF 100%);
+    --font: "SF UI Display", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
 
-    --radius-sm: 0.25rem;
-    --radius-md: 0.5rem;
-    --radius-lg: 0.75rem;
-    --card-padding: 2rem;
-    --card-gap: 1.25rem;
+    --radius-sm: 10px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --card-padding: 28px;
+    --card-gap: 16px;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   html, body {
     background: var(--bg);
-    color: var(--text-primary);
-    font-family: 'Montserrat', Arial, sans-serif;
+    color: var(--text);
+    font-family: var(--font);
     font-weight: 500;
     font-size: 16px;
     line-height: 1.55;
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
     min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* pozadina: ravna baza + nježan dijagonalni pinstripe + hladno-beli sjaj u gornjim uglovima */
+  .page-bg { position: fixed; inset: 0; z-index: -1; background: var(--bg); pointer-events: none; }
+  .page-bg::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: repeating-linear-gradient(135deg,
+      rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px,
+      transparent 1px, transparent 7px);
+  }
+  .page-bg::after {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 540px;
+    background:
+      radial-gradient(620px 320px at 8% -8%, rgba(180,205,255,0.10), transparent 70%),
+      radial-gradient(620px 320px at 92% -8%, rgba(180,205,255,0.09), transparent 70%);
   }
 
   main {
-    max-width: 720px;
+    max-width: 680px;
     margin: 0 auto;
-    padding: 48px 20px 80px;
+    padding: 52px 20px 88px;
   }
 
-  .hero { margin-bottom: 32px; }
+  .brand {
+    display: inline-block;
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    background: var(--grad-text);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 22px;
+  }
+
+  .hero { margin-bottom: 28px; }
   .hero h1 {
     font-weight: 800;
-    font-size: 42px;
+    font-size: clamp(30px, 7vw, 44px);
     letter-spacing: -0.02em;
-    line-height: 1.1;
-    color: var(--text-primary);
+    line-height: 1.12;
+    color: var(--heading);
   }
   .hero p {
     margin-top: 12px;
-    color: var(--text-dim);
+    color: var(--text);
     font-size: 16px;
     line-height: 1.55;
     font-weight: 500;
@@ -65,7 +100,7 @@
 
   .card {
     background: var(--card);
-    border: 1px solid var(--card-border);
+    border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     padding: var(--card-padding);
     margin-bottom: var(--card-gap);
@@ -77,60 +112,87 @@
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--muted);
-    margin-bottom: 14px;
+    margin-bottom: 16px;
   }
 
-  /* Progress */
+  /* ---- Progress ---- */
   .progress-row {
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    gap: 24px;
+    gap: 20px;
     flex-wrap: wrap;
   }
   .progress-num {
     font-weight: 800;
-    font-size: 84px;
-    line-height: 0.9;
-    letter-spacing: -0.03em;
-    color: var(--text-primary);
+    font-size: 82px;
+    line-height: 0.88;
+    letter-spacing: -0.04em;
+    color: var(--heading);
     display: flex;
     align-items: baseline;
-    gap: 4px;
+    gap: 2px;
   }
-  .progress-rank {
-    text-align: right;
-    color: var(--text-dim);
-    font-size: 13px;
-    line-height: 1.4;
+  .progress-num .sep,
+  .progress-num .total {
+    color: var(--muted);
+    font-size: 52px;
+    opacity: 0.6;
   }
+  .race-pill {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 7px 14px; border-radius: 1000px;
+    border: 1px solid rgba(0,208,255,0.35);
+    background: rgba(0,208,255,0.08);
+    font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: #BDEBFF;
+  }
+  .race-pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+
+  .progress-rank { text-align: right; }
   .progress-rank .rank-big {
     display: block;
-    color: var(--gold);
     font-weight: 800;
     font-size: 40px;
     line-height: 0.9;
-    margin-bottom: 4px;
+    letter-spacing: -0.02em;
+    background: var(--grad-text);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
+  .progress-rank .rank-cap { font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+
   .progress-caption {
-    margin-top: 10px;
-    color: var(--text-dim);
+    margin-top: 12px;
+    color: #9090A1;
     font-size: 14px;
     font-weight: 500;
   }
-
-  /* Share */
-  .share-row {
-    display: flex;
-    gap: 8px;
-    align-items: stretch;
+  .progress-bar {
+    margin-top: 18px;
+    height: 8px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1px solid var(--border);
   }
+  .progress-fill {
+    height: 100%;
+    background: var(--grad);
+    border-radius: 999px;
+    box-shadow: 0 0 14px rgba(0,160,255,0.5);
+    transition: width 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+    width: 0;
+  }
+
+  /* ---- Share ---- */
+  .share-row { display: flex; gap: 8px; align-items: stretch; }
   .share-input {
     flex: 1;
-    background: var(--bg);
-    border: 1px solid var(--card-border);
-    color: var(--text-primary);
-    font-family: 'Montserrat', Menlo, monospace;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    color: var(--heading);
+    font-family: var(--font);
     font-weight: 500;
     font-size: 14px;
     padding: 14px 16px;
@@ -141,196 +203,130 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .share-input:focus { border-color: var(--muted); }
+  .share-input:focus { border-color: rgba(0,208,255,0.5); }
   .copy-btn {
-    background: var(--gold);
-    color: #1a1000;
-    border: 1px solid transparent;
+    background: var(--grad);
+    color: #FFFFFF;
+    border: none;
     padding: 14px 26px;
     border-radius: var(--radius-sm);
-    font-family: 'Montserrat', sans-serif;
+    font-family: var(--font);
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: -0.01em;
     line-height: 1em;
     cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 0 0 3px var(--ring);
+    transition: filter 0.15s, transform 0.1s;
     white-space: nowrap;
   }
-  .copy-btn:hover { background: var(--gold-hover); }
+  .copy-btn:hover { filter: brightness(1.07); }
   .copy-btn:active { transform: scale(0.97); }
-  .copy-btn.copied { background: var(--gold-dark); color: var(--text-primary); }
+  .copy-btn.copied { background: #1f7a4d; box-shadow: 0 0 0 3px rgba(31,122,77,0.25); }
+  .share-hint { margin-top: 12px; color: var(--muted); font-size: 13px; line-height: 1.5; }
 
-  /* Referrals list */
+  /* ---- Nagrade (top 3) ---- */
+  .prize-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .prize-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px; border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+  }
+  .prize-item.is-mine { border-color: rgba(0,208,255,0.4); background: rgba(0,208,255,0.06); }
+  .prize-badge {
+    flex: none; width: 38px; height: 38px; border-radius: 11px;
+    display: grid; place-items: center;
+    font-weight: 800; font-size: 17px; color: #FFFFFF;
+    background: var(--grad);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.45);
+  }
+  .prize-text { font-size: 15px; font-weight: 600; color: var(--heading); }
+  .prize-place { font-size: 11.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
+
+  /* ---- Referrals list ---- */
   .ref-list { list-style: none; }
   .ref-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px 0;
-    border-bottom: 1px solid var(--line);
-    gap: 12px;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 15px 0; border-bottom: 1px solid var(--border); gap: 12px;
   }
-  .ref-item:first-child { padding-top: 4px; }
+  .ref-item:first-child { padding-top: 2px; }
   .ref-item:last-child { border-bottom: none; padding-bottom: 0; }
   .ref-item-main { min-width: 0; flex: 1; }
-  .ref-name {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text-primary);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .ref-email {
-    font-size: 13px;
-    color: var(--text-dim);
-    font-weight: 500;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    margin-top: 2px;
-  }
-  .ref-time {
-    font-size: 12px;
-    color: var(--text-dim);
-    font-weight: 500;
-    letter-spacing: 0.02em;
-    white-space: nowrap;
-  }
-  .empty {
-    text-align: center;
-    padding: 20px 0 8px;
-    color: var(--text-dim);
-    font-size: 14px;
-    line-height: 1.6;
-  }
+  .ref-name { font-size: 15px; font-weight: 600; color: var(--heading); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ref-email { font-size: 13px; color: var(--muted); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; }
+  .ref-time { font-size: 12px; color: var(--muted); font-weight: 500; white-space: nowrap; }
+  .empty { text-align: center; padding: 16px 0 6px; color: var(--muted); font-size: 14px; line-height: 1.6; }
 
-  /* Leaderboard */
+  /* ---- Leaderboard ---- */
   .lb-list { list-style: none; }
   .lb-item {
-    display: grid;
-    grid-template-columns: 44px 1fr auto;
-    align-items: center;
-    padding: 14px 0;
-    border-bottom: 1px solid var(--line);
-    gap: 14px;
+    display: grid; grid-template-columns: 40px 1fr auto;
+    align-items: center; padding: 13px 0;
+    border-bottom: 1px solid var(--border); gap: 14px;
   }
-  .lb-item:first-child { padding-top: 4px; }
+  .lb-item:first-child { padding-top: 2px; }
   .lb-item:last-child { border-bottom: none; padding-bottom: 0; }
   .lb-item.me {
-    background: rgba(232, 168, 56, 0.08);
+    background: rgba(0,208,255,0.07);
+    border: 1px solid rgba(0,208,255,0.3);
     border-radius: var(--radius-sm);
-    border-bottom: 1px solid transparent;
-    padding: 14px 12px;
-    margin: 0 -12px;
+    padding: 13px 12px; margin: 4px -12px;
   }
-
-  .lb-rank {
-    font-weight: 800;
-    font-size: 22px;
-    line-height: 1;
-    color: var(--muted);
-    opacity: 0.45;
-    text-align: left;
-  }
+  .lb-rank { font-weight: 800; font-size: 20px; line-height: 1; color: var(--muted); opacity: 0.5; text-align: left; }
   .lb-item.top-3 .lb-rank {
-    color: var(--gold);
     opacity: 1;
+    background: var(--grad-text);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
-
-  .lb-name {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text-primary);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .lb-email {
-    font-size: 12px;
-    color: var(--text-dim);
-    font-weight: 500;
-    margin-top: 2px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .lb-count {
-    font-weight: 800;
-    font-size: 20px;
-    color: var(--text-primary);
-  }
-  .lb-count-label {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-left: 6px;
-  }
-  .lb-foot {
-    margin-top: 16px;
-    padding-top: 16px;
-    border-top: 1px solid var(--line);
-    color: var(--text-dim);
-    font-size: 13px;
-  }
+  .lb-name { font-size: 15px; font-weight: 600; color: var(--heading); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lb-email { font-size: 12px; color: var(--muted); font-weight: 500; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lb-count { font-weight: 800; font-size: 19px; color: var(--heading); }
+  .lb-count-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-left: 6px; }
+  .lb-foot { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
   .lb-foot .highlight {
-    color: var(--gold);
     font-weight: 700;
+    background: var(--grad-text);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
-  /* States */
-  .loading {
-    text-align: center;
-    padding: 80px 20px;
-    color: var(--text-dim);
-    font-size: 18px;
-  }
+  /* ---- States ---- */
+  .loading { text-align: center; padding: 90px 20px; color: var(--muted); font-size: 17px; }
   .error-box {
-    background: var(--card);
-    border: 1px solid var(--card-border);
-    color: var(--text-primary);
-    padding: 20px;
-    border-radius: var(--radius-lg);
-    font-size: 15px;
-    line-height: 1.55;
-    font-weight: 500;
+    background: var(--card); border: 1px solid var(--border);
+    color: var(--heading); padding: 22px; border-radius: var(--radius-lg);
+    font-size: 15px; line-height: 1.55; font-weight: 500;
   }
 
-  /* Toast */
+  /* ---- Toast ---- */
   .toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
+    position: fixed; bottom: 24px; left: 50%;
     transform: translateX(-50%) translateY(20px);
-    background: var(--text-primary);
-    color: var(--bg);
-    padding: 13px 22px;
-    border-radius: var(--radius-sm);
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    opacity: 0;
-    pointer-events: none;
+    background: var(--heading); color: var(--bg);
+    padding: 13px 22px; border-radius: var(--radius-sm);
+    font-size: 14px; font-weight: 700; letter-spacing: -0.01em;
+    opacity: 0; pointer-events: none;
     transition: opacity 0.2s, transform 0.2s;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+    z-index: 9999;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
   @media (max-width: 480px) {
-    .hero h1 { font-size: 32px; }
     .progress-num { font-size: 64px; }
+    .progress-num .sep, .progress-num .total { font-size: 40px; }
     .progress-rank .rank-big { font-size: 32px; }
     .copy-btn { padding: 14px 18px; }
-    .lb-item { grid-template-columns: 36px 1fr auto; gap: 10px; }
-    .lb-rank { font-size: 18px; }
+    .lb-item { grid-template-columns: 32px 1fr auto; gap: 10px; }
+    .lb-rank { font-size: 17px; }
     .lb-count { font-size: 17px; }
   }
 </style>
 </head>
 <body>
+<div class="page-bg"></div>
 
 <main id="app">
   <div class="loading" id="loading">Učitavanje…</div>
@@ -341,9 +337,18 @@
 <script>
   const SUPABASE_URL = 'https://qdllfhjlibyvwntwknkg.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_qr-AMxcW5uMNtOJSYiMPtw_-xxd1XSr';
-  const WEBINAR_LANDING_URL = 'https://uzivotrening.editunovac.com/optin-970758';
-  // PLACEHOLDER — prag i tekst nagrade, menja se kad Tibor odluči:
-  const REWARD_TEXT = 'Pozovi prijatelje preko svog linka i osvoji nagradu.';
+  // Share link sa dashboarda (kopiranje) — platform varijanta sa Hyros/AEvent atribucijom.
+  // Naš referral kod se dodaje kao &r=KOD na kraj. [webinar] je doslovan label po dogovoru.
+  const SHARE_BASE = 'https://uzivotrening.editunovac.com/optin?el=referral_[webinar]_url_platform&hgoal=webinar&htrafficsource=referral&source=referral';
+  const BRAND = 'Edit Unovac · Uživo Trening';
+
+  // Prag za ulazak u trku + nagrade za top 3 (Tibor).
+  const THRESHOLD = 5;
+  const PRIZES = [
+    { place: 1, text: 'Pronaći ću ti klijenta' },
+    { place: 2, text: '30 min 1:1 poziv sa Tiborom' },
+    { place: 3, text: '30 min 1:1 poziv sa Tiborom' },
+  ];
 
   const params = new URLSearchParams(location.search);
   const token = params.get('t');
@@ -353,7 +358,7 @@
   if (isDemoMode) {
     render(demoData(), demoLeaderboard());
   } else if (!token) {
-    renderError('Link nije ispravan. Iskoristi link koji si dobio posle prijave.');
+    renderError('Link nije ispravan. Iskoristi link koji si dobio/la poslije prijave.');
   } else {
     loadAll(token);
   }
@@ -364,8 +369,8 @@
       ref_code: 'X7K2M9',
       first_name: 'Marko',
       last_name: 'Marković',
-      referral_count: 3,
-      my_rank: 4,
+      referral_count: 6,
+      my_rank: 2,
       total_with_referrals: 18,
       referrals: [
         { email: 'ana.petrovic@gmail.com', first_name: 'Ana', last_name: 'Petrović', created_at: new Date(now - 45*60*1000).toISOString() },
@@ -377,9 +382,9 @@
   function demoLeaderboard() {
     return [
       { rank: 1, first_name: 'Jovana', last_name: 'Stanković', email: 'j***@example.com', referral_count: 12, is_me: false },
-      { rank: 2, first_name: 'Nikola', last_name: 'Petrović', email: 'n***@example.com', referral_count: 9, is_me: false },
-      { rank: 3, first_name: 'Ivana', last_name: 'Đorđević', email: 'i***@example.com', referral_count: 7, is_me: false },
-      { rank: 4, first_name: 'Marko', last_name: 'Marković', email: 'marko@example.com', referral_count: 3, is_me: true },
+      { rank: 2, first_name: 'Marko', last_name: 'Marković', email: 'marko@example.com', referral_count: 6, is_me: true },
+      { rank: 3, first_name: 'Ivana', last_name: 'Đorđević', email: 'i***@example.com', referral_count: 4, is_me: false },
+      { rank: 4, first_name: 'Nikola', last_name: 'Petrović', email: 'n***@example.com', referral_count: 3, is_me: false },
       { rank: 5, first_name: 'Petar', last_name: 'Nikolić', email: 'p***@example.com', referral_count: 2, is_me: false },
     ];
   }
@@ -392,13 +397,13 @@
       ]);
       const meRow = Array.isArray(me) ? me[0] : me;
       if (!meRow) {
-        renderError('Nismo pronašli tvoj dashboard. Proveri link.');
+        renderError('Nismo pronašli tvoj dashboard. Provjeri link.');
         return;
       }
       render(meRow, Array.isArray(board) ? board : []);
     } catch (err) {
       console.error(err);
-      renderError('Trenutno ne možemo da učitamo podatke. Probaj ponovo za minut.');
+      renderError('Trenutno ne možemo učitati podatke. Pokušaj ponovo za minut.');
     }
   }
 
@@ -420,38 +425,54 @@
     const count = Number(data.referral_count || 0);
     const firstName = data.first_name || '';
     const refCode = data.ref_code;
-    const shareUrl = `${WEBINAR_LANDING_URL}?r=${refCode}`;
+    const shareUrl = `${SHARE_BASE}&r=${refCode}`;
     const referrals = Array.isArray(data.referrals) ? data.referrals : [];
     const myRank = data.my_rank;
+    const inRace = count >= THRESHOLD;
+    const remaining = Math.max(0, THRESHOLD - count);
+    const pct = Math.min(100, Math.round((count / THRESHOLD) * 100));
 
     const greeting = firstName ? `Pozdrav, ${escapeHtml(firstName)}!` : 'Pozdrav!';
-    const subtitle = count === 0
-      ? REWARD_TEXT
-      : `Već si pozvao/la ${count} ${plural(count)}. Nastavi — svaka nova prijava se računa.`;
+    const subtitle = inRace
+      ? 'U trci si za nagrade! Sad se penji na lestvici — <strong>top 3 osvajaju</strong>. Svaka nova prijava te gura naviše.'
+      : (count === 0
+          ? `Dovedi <strong>${THRESHOLD} prijave</strong> preko svog linka i ulaziš u trku za nagrade. Kreni — treba ti samo jedan klik na „Kopiraj“.`
+          : `Još <strong>${remaining} ${plural(remaining)}</strong> i ulaziš u trku za nagrade. Skoro si tu.`);
 
-    const rankBlock = myRank
-      ? `<div class="progress-rank">
-           <span class="rank-big">#${myRank}</span>
-         </div>`
-      : '';
+    // glavni broj: X / 5 dok ne uđe u trku, čist broj kad uđe
+    const numBlock = inRace
+      ? `<div class="progress-num"><span class="count">${count}</span></div>`
+      : `<div class="progress-num"><span class="count">${count}</span><span class="sep">/</span><span class="total">${THRESHOLD}</span></div>`;
 
-    const leaderboardBlock = renderLeaderboard(board, refCode, myRank, count);
+    const sideBlock = inRace && myRank
+      ? `<div class="progress-rank"><span class="rank-big">#${myRank}</span><span class="rank-cap">tvoje mjesto</span></div>`
+      : (inRace ? `<span class="race-pill"><span class="dot"></span>U trci</span>` : '');
+
+    const barBlock = inRace
+      ? `<span class="race-pill" style="margin-top:18px"><span class="dot"></span>Cilj od ${THRESHOLD} dostignut</span>`
+      : `<div class="progress-bar"><div class="progress-fill" id="pfill"></div></div>`;
+
+    const caption = inRace ? 'prijava preko tvog linka' : 'prijava do ulaska u trku';
+
+    const prizesBlock = renderPrizes(myRank, inRace);
+    const leaderboardBlock = renderLeaderboard(board, myRank, count);
 
     app.innerHTML = `
+      <div class="brand">${escapeHtml(BRAND)}</div>
+
       <div class="hero">
         <h1>${greeting}</h1>
         <p>${subtitle}</p>
       </div>
 
       <div class="card">
-        <div class="card-label">Tvoji referali</div>
+        <div class="card-label">Tvoje prijave</div>
         <div class="progress-row">
-          <div class="progress-num">
-            <span class="count">${count}</span>
-          </div>
-          ${rankBlock}
+          ${numBlock}
+          ${sideBlock}
         </div>
-        <div class="progress-caption">prijavljenih preko tvog linka</div>
+        <div class="progress-caption">${caption}</div>
+        ${barBlock}
       </div>
 
       <div class="card">
@@ -460,12 +481,15 @@
           <input class="share-input" id="shareInput" value="${escapeHtml(shareUrl)}" readonly />
           <button class="copy-btn" id="copyBtn">Kopiraj</button>
         </div>
+        <div class="share-hint">Podijeli ga gdje god možeš — svaka prijava preko ovog linka se računa tebi.</div>
       </div>
 
+      ${prizesBlock}
+
       <div class="card">
-        <div class="card-label">Ljudi koje si doveo (${count})</div>
+        <div class="card-label">Ljudi koje si doveo/la (${count})</div>
         ${referrals.length === 0
-          ? `<div class="empty">Još niko. Podeli link iznad — potreban ti je samo klik na "Kopiraj".</div>`
+          ? `<div class="empty">Još niko. Podijeli link iznad i prati kako broj raste.</div>`
           : `<ul class="ref-list">${referrals.map(renderRefItem).join('')}</ul>`}
       </div>
 
@@ -474,9 +498,30 @@
 
     document.getElementById('copyBtn').addEventListener('click', onCopy);
     document.getElementById('shareInput').addEventListener('click', (e) => e.target.select());
+    const fill = document.getElementById('pfill');
+    if (fill) requestAnimationFrame(() => { fill.style.width = pct + '%'; });
   }
 
-  function renderLeaderboard(board, myRefCode, myRank, myCount) {
+  function renderPrizes(myRank, inRace) {
+    const rows = PRIZES.map((p) => {
+      const mine = inRace && myRank === p.place;
+      return `
+        <li class="prize-item ${mine ? 'is-mine' : ''}">
+          <div class="prize-badge">${p.place}</div>
+          <div>
+            <div class="prize-place">${p.place}. mjesto${mine ? ' · trenutno ti' : ''}</div>
+            <div class="prize-text">${escapeHtml(p.text)}</div>
+          </div>
+        </li>`;
+    }).join('');
+    return `
+      <div class="card">
+        <div class="card-label">Nagrade · Top 3 na lestvici</div>
+        <ul class="prize-list">${rows}</ul>
+      </div>`;
+  }
+
+  function renderLeaderboard(board, myRank, myCount) {
     if (!board || board.length === 0) return '';
 
     const rows = board.map((r) => {
@@ -493,13 +538,12 @@
           <div>
             <span class="lb-count">${r.referral_count}</span><span class="lb-count-label">${plural(Number(r.referral_count))}</span>
           </div>
-        </li>
-      `;
+        </li>`;
     }).join('');
 
     const showMyPosition = myRank != null && myRank > board.length;
     const foot = showMyPosition
-      ? `<div class="lb-foot">Ti si <span class="highlight">#${myRank}</span> sa ${myCount} ${plural(myCount)}. Vrati se na vrh — nije kasno.</div>`
+      ? `<div class="lb-foot">Ti si <span class="highlight">#${myRank}</span> sa ${myCount} ${plural(myCount)}. Penji se ka top 3 — nije kasno.</div>`
       : '';
 
     return `
@@ -507,8 +551,7 @@
         <div class="card-label">Lestvica · Top ${board.length}</div>
         <ul class="lb-list">${rows}</ul>
         ${foot}
-      </div>
-    `;
+      </div>`;
   }
 
   function renderRefItem(r) {
@@ -520,8 +563,7 @@
           <div class="ref-email">${escapeHtml(r.email || '')}</div>
         </div>
         <div class="ref-time">${formatTime(r.created_at)}</div>
-      </li>
-    `;
+      </li>`;
   }
 
   async function onCopy() {
@@ -550,6 +592,7 @@
 
   function renderError(msg) {
     app.innerHTML = `
+      <div class="brand">${escapeHtml(BRAND)}</div>
       <div class="error-box">${escapeHtml(msg)}</div>
     `;
   }
@@ -557,7 +600,7 @@
   function plural(n) {
     const mod10 = n % 10;
     const mod100 = n % 100;
-    if (mod10 === 1 && mod100 !== 11) return 'prijavu';
+    if (mod10 === 1 && mod100 !== 11) return 'prijava';
     if ([2,3,4].includes(mod10) && ![12,13,14].includes(mod100)) return 'prijave';
     return 'prijava';
   }
@@ -567,11 +610,11 @@
     const d = new Date(iso);
     const diff = (Date.now() - d.getTime()) / 1000;
     if (diff < 60) return 'upravo sad';
-    if (diff < 3600) return `pre ${Math.floor(diff / 60)} min`;
-    if (diff < 86400) return `pre ${Math.floor(diff / 3600)} h`;
+    if (diff < 3600) return `prije ${Math.floor(diff / 60)} min`;
+    if (diff < 86400) return `prije ${Math.floor(diff / 3600)} h`;
     const days = Math.floor(diff / 86400);
-    if (days < 7) return `pre ${days} ${days === 1 ? 'dan' : 'dana'}`;
-    return d.toLocaleDateString('sr-Latn-RS', { day: 'numeric', month: 'short' });
+    if (days < 7) return `prije ${days} ${days === 1 ? 'dan' : 'dana'}`;
+    return d.toLocaleDateString('hr-HR', { day: 'numeric', month: 'short' });
   }
 
   function escapeHtml(s) {

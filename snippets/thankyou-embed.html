@@ -11,23 +11,24 @@
   referral link + dashboard link, pa prikaže karticu: "TVOJ REFERRAL LINK"
   [input] [Kopiraj] + "Prati broj prijavljenih na svojoj platformi".
 
+  Dizajn 1:1 sa ecomtalent / Tibor optin (tibor-optin/DESIGN.md).
   CONFIG: proveri apiUrl posle prvog Vercel deploya (mora da bude pravi domen).
 -->
 
 <style>
   .eu-ref-embed {
-    font-family: 'Montserrat', Arial, sans-serif;
+    font-family: "SF UI Display", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
     font-weight: 500;
-    max-width: 720px;
+    max-width: 680px;
     margin: 40px auto 0;
   }
   .eu-ref-embed * { box-sizing: border-box; }
 
   .eu-ref-card {
-    background: #181009;
-    border: 1px solid #2b2014;
-    border-radius: 0.75rem;
-    padding: 2rem;
+    background: #0E0B14;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 28px;
   }
 
   .eu-ref-label {
@@ -35,7 +36,7 @@
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: #8c8273;
+    color: #757589;
     margin-bottom: 14px;
   }
 
@@ -47,81 +48,83 @@
 
   .eu-ref-input {
     flex: 1;
-    background: #0a0403;
-    border: 1px solid #2b2014;
-    color: #f5efe4;
-    font-family: 'Montserrat', Menlo, monospace;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #FFFFFF;
+    font-family: inherit;
     font-weight: 500;
     font-size: 14px;
     padding: 14px 16px;
-    border-radius: 0.25rem;
+    border-radius: 10px;
     outline: none;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .eu-ref-input:focus { border-color: #8c8273; }
+  .eu-ref-input:focus { border-color: rgba(0, 208, 255, 0.5); }
 
   .eu-ref-btn {
-    background: #e8a838;
-    color: #1a1000;
-    border: 1px solid transparent;
+    background: linear-gradient(180deg, #00D0FF 0%, #0066FF 100%);
+    color: #FFFFFF;
+    border: none;
     padding: 14px 26px;
-    border-radius: 0.25rem;
-    font-family: 'Montserrat', sans-serif;
+    border-radius: 10px;
+    font-family: inherit;
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: -0.01em;
     line-height: 1em;
     cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 0 0 3px rgba(1,115,255,0.20);
+    transition: filter 0.15s, transform 0.1s;
     white-space: nowrap;
   }
-  .eu-ref-btn:hover { background: #d4982f; }
+  .eu-ref-btn:hover { filter: brightness(1.07); }
   .eu-ref-btn:active { transform: scale(0.97); }
-  .eu-ref-btn.eu-ref-copied { background: #6b4e1c; color: #f5efe4; }
+  .eu-ref-btn.eu-ref-copied { background: #1f7a4d; box-shadow: 0 0 0 3px rgba(31,122,77,0.25); }
 
   .eu-ref-footnote {
-    color: #a99e8d;
+    color: #ABB1BA;
     font-size: 13px;
     line-height: 1.55;
     margin-top: 12px;
   }
   .eu-ref-footnote a {
-    color: #e8a838;
-    font-weight: 700;
+    font-weight: 600;
     text-decoration: underline;
     text-underline-offset: 3px;
+    background: linear-gradient(331deg, #00D0FF 0%, #0066FF 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
-  .eu-ref-footnote a:hover { color: #d4982f; }
 
   .eu-ref-status {
-    color: #a99e8d;
+    color: #ABB1BA;
     font-size: 14px;
     line-height: 1.55;
     text-align: center;
     padding: 8px 0;
   }
-  .eu-ref-status strong { color: #f5efe4; }
+  .eu-ref-status strong { color: #FFFFFF; }
 
   .eu-ref-toast {
     position: fixed;
     bottom: 24px;
     left: 50%;
     transform: translateX(-50%) translateY(20px);
-    background: #f5efe4;
-    color: #0a0403;
+    background: #FFFFFF;
+    color: #05000F;
     padding: 13px 22px;
-    border-radius: 0.25rem;
-    font-family: 'Montserrat', sans-serif;
+    border-radius: 10px;
+    font-family: "SF UI Display", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
     font-size: 14px;
     font-weight: 700;
     letter-spacing: -0.01em;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s, transform 0.2s;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
     z-index: 9999;
   }
   .eu-ref-toast.eu-ref-show {
@@ -145,8 +148,11 @@
 (function () {
   var CONFIG = {
     apiUrl: 'https://tibor-referral-system.vercel.app/api/signup',
-    webinarUrl: 'https://uzivotrening.editunovac.com/optin-970758',
+    webinarUrl: 'https://uzivotrening.editunovac.com/optin',
     dashboardBaseUrl: 'https://tibor-referral-system.vercel.app',
+    // Share link prikazan na thank-you stranici — thankyou varijanta sa Hyros/AEvent
+    // atribucijom. Naš referral kod se dodaje kao &r=KOD. [webinar] je doslovan label.
+    shareBase: 'https://uzivotrening.editunovac.com/optin?el=referral_[webinar]_url_thankyou&hgoal=webinar&htrafficsource=referral&source=referral',
   };
 
   var root = document.getElementById('eu-ref-embed');
@@ -156,7 +162,7 @@
   if (isDemo) {
     setTimeout(function () {
       renderCard({
-        shareUrl: CONFIG.webinarUrl + '?r=X7K2M9',
+        refCode: 'X7K2M9',
         dashboardUrl: CONFIG.dashboardBaseUrl + '/?t=demo-token',
       });
     }, 200);
@@ -195,15 +201,18 @@
   });
 
   function renderCard(data) {
+    // Share link = thankyou varijanta + naš referral kod. Gradi se iz vraćenog refCode-a;
+    // fallback na data.shareUrl ako kod nedostaje.
+    var shareUrl = data.refCode ? (CONFIG.shareBase + '&r=' + data.refCode) : (data.shareUrl || '');
     root.innerHTML =
       '<div class="eu-ref-card">' +
         '<div class="eu-ref-label">Tvoj referral link</div>' +
         '<div class="eu-ref-row">' +
-          '<input class="eu-ref-input" id="eu-ref-input" value="' + esc(data.shareUrl) + '" readonly />' +
+          '<input class="eu-ref-input" id="eu-ref-input" value="' + esc(shareUrl) + '" readonly />' +
           '<button class="eu-ref-btn" id="eu-ref-btn" type="button">Kopiraj</button>' +
         '</div>' +
         '<div class="eu-ref-footnote">' +
-          'Prati broj prijavljenih preko svog linka na <a href="' + esc(data.dashboardUrl) + '" target="_blank" rel="noopener">svojoj platformi</a>.' +
+          'Dovedi 5 prijava i ulaziš u trku za nagrade. Prati broj na <a href="' + esc(data.dashboardUrl) + '" target="_blank" rel="noopener">svojoj platformi</a>.' +
         '</div>' +
       '</div>';
     document.getElementById('eu-ref-btn').addEventListener('click', onCopy);
