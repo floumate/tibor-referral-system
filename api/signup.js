@@ -77,7 +77,9 @@ export default async function handler(req, res) {
   }
 
   const dashboardUrl = `${process.env.DASHBOARD_BASE_URL}/?t=${signup.dashboard_token}`;
-  const shareUrl = `${webinarUrl}${webinarUrl.includes('?') ? '&' : '?'}r=${signup.ref_code}`;
+  // Čist referral link (r= prvi, bez uglastih zagrada koje lome URL) — ide u GHL custom field
+  // refferal_link, pa ga GHL email/WhatsApp može slati korisniku ({{contact.refferal_link}}).
+  const shareUrl = `https://uzivotrening.editunovac.com/optin?r=${signup.ref_code}&el=referral_webinar_url_thankyou&hgoal=webinar&htrafficsource=referral&source=referral`;
 
   // GHL kontakt sync (telefon + opciono custom polja/tag) — UVIJEK, idempotentno.
   // NE samo na prvu prijavu: da telefon legne i kod ponovne prijave ili ako je kontakt
