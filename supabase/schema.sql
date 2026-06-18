@@ -16,12 +16,15 @@ create table if not exists signups (
   reward_sent     boolean not null default false,
   flagged         boolean not null default false,
   notes           text,
+  ip              text,           -- IP prijave (Vercel x-forwarded-for) — detekcija prevare, vidi ANTI-FRAUD.md
+  user_agent      text,           -- browser/uredjaj prijave — dodatni signal
   created_at      timestamptz not null default now()
 );
 
 create index if not exists signups_referred_by_idx on signups(referred_by);
 create index if not exists signups_dashboard_token_idx on signups(dashboard_token);
 create index if not exists signups_created_at_idx on signups(created_at desc);
+create index if not exists signups_ip_idx on signups(ip);
 
 -- random code generator: 6 chars, uppercase alphanumeric, no 0/O/I/1 confusion
 create or replace function gen_ref_code() returns text
@@ -58,7 +61,9 @@ create or replace function create_signup(
   p_email text,
   p_first_name text default null,
   p_referred_by text default null,
-  p_last_name text default null
+  p_last_name text default null,
+  p_ip text default null,
+  p_user_agent text default null
 ) returns table (
   out_ref_code text,
   out_dashboard_token text,
@@ -112,14 +117,16 @@ begin
 
   v_token := gen_dashboard_token();
 
-  insert into signups (email, first_name, last_name, ref_code, referred_by, dashboard_token)
+  insert into signups (email, first_name, last_name, ref_code, referred_by, dashboard_token, ip, user_agent)
   values (
     p_email,
     nullif(trim(p_first_name), ''),
     nullif(trim(p_last_name), ''),
     v_ref_code,
     v_referred_by,
-    v_token
+    v_token,
+    nullif(trim(p_ip), ''),
+    nullif(trim(p_user_agent), '')
   );
 
   return query select v_ref_code, v_token, true, v_referred_by;
@@ -268,4 +275,4 @@ alter table signups enable row level security;
 
 grant execute on function get_dashboard(text) to anon;
 grant execute on function get_leaderboard(text) to anon;
-revoke execute on function create_signup(text, text, text, text) from anon, authenticated;
+revoke execute on function create_signup(text, text, text, text, text, text) from anon, authenticated;

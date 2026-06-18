@@ -48,6 +48,15 @@ export default async function handler(req, res) {
   const ref = cleanString(body.ref);
   const phone = cleanString(body.phone);  // E.164 (npr. +38760123456) — upisuje se u GHL kontakt
 
+  // IP prijave: čita se SERVER-SIDE iz zaglavlja koje postavlja Vercel/proxy —
+  // korisnik ga ne šalje pa ne može da ga lažira. Koristi se za detekciju
+  // prevare (rafal prijava sa istog IP-a). x-forwarded-for je lista "client, proxy1, ..."
+  // pa uzimamo prvi (pravi klijent). Vidi ANTI-FRAUD.md za strategiju.
+  const fwd = req.headers['x-forwarded-for'] || '';
+  const ip = (Array.isArray(fwd) ? fwd[0] : fwd).split(',')[0].trim()
+    || cleanString(req.headers['x-real-ip']);
+  const userAgent = cleanString(req.headers['user-agent']).slice(0, 400);
+
   // Ime stiže ili kao puno ime ("name") ili razdvojeno (first_name/last_name)
   let firstName = cleanString(body.firstName || body.first_name);
   let lastName = cleanString(body.lastName || body.last_name);
@@ -70,7 +79,7 @@ export default async function handler(req, res) {
 
   let signup;
   try {
-    signup = await createSignup({ email, firstName, lastName, ref });
+    signup = await createSignup({ email, firstName, lastName, ref, ip, userAgent });
   } catch (err) {
     console.error('supabase create_signup failed', err);
     return res.status(500).json({ error: 'supabase_error' });
@@ -112,7 +121,7 @@ export default async function handler(req, res) {
 
 // ----- helpers -----
 
-async function createSignup({ email, firstName, lastName, ref }) {
+async function createSignup({ email, firstName, lastName, ref, ip, userAgent }) {
   const url = `${process.env.SUPABASE_URL}/rest/v1/rpc/create_signup`;
   const resp = await fetch(url, {
     method: 'POST',
@@ -126,6 +135,8 @@ async function createSignup({ email, firstName, lastName, ref }) {
       p_first_name: firstName || null,
       p_last_name: lastName || null,
       p_referred_by: ref || null,
+      p_ip: ip || null,
+      p_user_agent: userAgent || null,
     }),
   });
 
