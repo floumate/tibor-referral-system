@@ -98,6 +98,7 @@
     font-size: 16px;
     line-height: 1.55;
     font-weight: 500;
+    text-wrap: balance;
   }
 
   .card {
@@ -150,19 +151,6 @@
     color: #BDEBFF;
   }
   .race-pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
-
-  .progress-rank { text-align: right; }
-  .progress-rank .rank-big {
-    display: block;
-    font-weight: 800;
-    font-size: 40px;
-    line-height: 0.9;
-    letter-spacing: -0.02em;
-    background: var(--grad-text);
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  .progress-rank .rank-cap { font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
 
   .progress-caption {
     margin-top: 12px;
@@ -227,25 +215,6 @@
   .copy-btn.copied { background: #1f7a4d; box-shadow: 0 0 0 3px rgba(31,122,77,0.25); }
   .share-hint { margin-top: 12px; color: var(--muted); font-size: 13px; line-height: 1.5; }
 
-  /* ---- Nagrade (top 3) ---- */
-  .prize-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
-  .prize-item {
-    display: flex; align-items: center; gap: 14px;
-    padding: 14px; border-radius: var(--radius-md);
-    border: 1px solid var(--border);
-    background: rgba(255,255,255,0.02);
-  }
-  .prize-item.is-mine { border-color: rgba(0,208,255,0.4); background: rgba(0,208,255,0.06); }
-  .prize-badge {
-    flex: none; width: 38px; height: 38px; border-radius: 11px;
-    display: grid; place-items: center;
-    font-weight: 800; font-size: 17px; color: #FFFFFF;
-    background: var(--grad);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.45);
-  }
-  .prize-text { font-size: 15px; font-weight: 600; color: var(--heading); }
-  .prize-place { font-size: 11.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
-
   /* ---- Referrals list ---- */
   .ref-list { list-style: none; }
   .ref-item {
@@ -259,40 +228,6 @@
   .ref-email { font-size: 13px; color: var(--muted); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; }
   .ref-time { font-size: 12px; color: var(--muted); font-weight: 500; white-space: nowrap; }
   .empty { text-align: center; padding: 16px 0 6px; color: var(--muted); font-size: 14px; line-height: 1.6; }
-
-  /* ---- Leaderboard ---- */
-  .lb-list { list-style: none; }
-  .lb-item {
-    display: grid; grid-template-columns: 40px 1fr auto;
-    align-items: center; padding: 13px 0;
-    border-bottom: 1px solid var(--border); gap: 14px;
-  }
-  .lb-item:first-child { padding-top: 2px; }
-  .lb-item:last-child { border-bottom: none; padding-bottom: 0; }
-  .lb-item.me {
-    background: rgba(0,208,255,0.07);
-    border: 1px solid rgba(0,208,255,0.3);
-    border-radius: var(--radius-sm);
-    padding: 13px 12px; margin: 4px -12px;
-  }
-  .lb-rank { font-weight: 800; font-size: 20px; line-height: 1; color: var(--muted); opacity: 0.5; text-align: left; }
-  .lb-item.top-3 .lb-rank {
-    opacity: 1;
-    background: var(--grad-text);
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  .lb-name { font-size: 15px; font-weight: 600; color: var(--heading); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .lb-email { font-size: 12px; color: var(--muted); font-weight: 500; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .lb-count { font-weight: 800; font-size: 19px; color: var(--heading); }
-  .lb-count-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-left: 6px; }
-  .lb-foot { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
-  .lb-foot .highlight {
-    font-weight: 700;
-    background: var(--grad-text);
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
 
   /* ---- States ---- */
   .loading { text-align: center; padding: 90px 20px; color: var(--muted); font-size: 17px; }
@@ -319,11 +254,7 @@
   @media (max-width: 480px) {
     .progress-num { font-size: 64px; }
     .progress-num .sep, .progress-num .total { font-size: 40px; }
-    .progress-rank .rank-big { font-size: 32px; }
     .copy-btn { padding: 14px 18px; }
-    .lb-item { grid-template-columns: 32px 1fr auto; gap: 10px; }
-    .lb-rank { font-size: 17px; }
-    .lb-count { font-size: 17px; }
   }
 </style>
 </head>
@@ -340,17 +271,12 @@
   const SUPABASE_URL = 'https://qdllfhjlibyvwntwknkg.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_qr-AMxcW5uMNtOJSYiMPtw_-xxd1XSr';
   // Share link sa dashboarda (kopiranje) - platform varijanta sa Hyros/AEvent atribucijom.
-  // Naš referral kod se dodaje kao &r=KOD na kraj. [webinar] je doslovan label po dogovoru.
+  // Naš referral kod se dodaje kao &r=KOD na kraj. evergreen_webinar je label kampanje.
   // r= IDE PRVI + bez uglastih zagrada - da link preživi deljenje (aplikacije sijeku URL na "[").
-  const SHARE_PARAMS = 'el=referral_webinar_url_platform&hgoal=webinar&htrafficsource=referral&source=referral';
+  const SHARE_PARAMS = 'el=referral_evergreen_webinar_url_platform&hgoal=evergreen_webinar&htrafficsource=referral&source=referral';
 
-  // Prag za ulazak u trku + nagrade za top 3 (Tibor).
+  // Prag za ulazak u trku (mehanika nagrade TBD).
   const THRESHOLD = 5;
-  const PRIZES = [
-    { place: 1, text: 'Pronaći ću ti klijenta' },
-    { place: 2, text: '30 min 1:1 poziv sa Tiborom' },
-    { place: 3, text: '30 min 1:1 poziv sa Tiborom' },
-  ];
 
   const params = new URLSearchParams(location.search);
   const token = params.get('t');
@@ -358,7 +284,7 @@
   const isDemoMode = params.get('demo') === '1';
 
   if (isDemoMode) {
-    render(demoData(), demoLeaderboard());
+    render(demoData());
   } else if (!token) {
     renderError('Link nije ispravan. Iskoristi link koji si dobio/la poslije prijave.');
   } else {
@@ -372,8 +298,6 @@
       first_name: 'Marko',
       last_name: 'Marković',
       referral_count: 6,
-      my_rank: 2,
-      total_with_referrals: 18,
       referrals: [
         { email: 'ana.petrovic@gmail.com', first_name: 'Ana', last_name: 'Petrović', created_at: new Date(now - 45*60*1000).toISOString() },
         { email: 'stefan@outlook.com', first_name: 'Stefan', last_name: 'Jovanović', created_at: new Date(now - 3*3600*1000).toISOString() },
@@ -381,28 +305,15 @@
       ],
     };
   }
-  function demoLeaderboard() {
-    return [
-      { rank: 1, first_name: 'Jovana', last_name: 'Stanković', email: 'j***@example.com', referral_count: 12, is_me: false },
-      { rank: 2, first_name: 'Marko', last_name: 'Marković', email: 'marko@example.com', referral_count: 6, is_me: true },
-      { rank: 3, first_name: 'Ivana', last_name: 'Đorđević', email: 'i***@example.com', referral_count: 4, is_me: false },
-      { rank: 4, first_name: 'Nikola', last_name: 'Petrović', email: 'n***@example.com', referral_count: 3, is_me: false },
-      { rank: 5, first_name: 'Petar', last_name: 'Nikolić', email: 'p***@example.com', referral_count: 2, is_me: false },
-    ];
-  }
-
   async function loadAll(t) {
     try {
-      const [me, board] = await Promise.all([
-        rpc('get_dashboard', { p_token: t }),
-        rpc('get_leaderboard', { p_token: t }),
-      ]);
+      const me = await rpc('get_dashboard', { p_token: t });
       const meRow = Array.isArray(me) ? me[0] : me;
       if (!meRow) {
         renderError('Nismo pronašli tvoj dashboard. Provjeri link.');
         return;
       }
-      render(meRow, Array.isArray(board) ? board : []);
+      render(meRow);
     } catch (err) {
       console.error(err);
       renderError('Trenutno ne možemo učitati podatke. Pokušaj ponovo za minut.');
@@ -423,20 +334,19 @@
     return res.json();
   }
 
-  function render(data, board) {
+  function render(data) {
     const count = Number(data.referral_count || 0);
     const firstName = data.first_name || '';
     const refCode = data.ref_code;
     const shareUrl = `https://uzivotrening.editunovac.com/optin?r=${refCode}&${SHARE_PARAMS}`;
     const referrals = Array.isArray(data.referrals) ? data.referrals : [];
-    const myRank = data.my_rank;
     const inRace = count >= THRESHOLD;
     const remaining = Math.max(0, THRESHOLD - count);
     const pct = Math.min(100, Math.round((count / THRESHOLD) * 100));
 
     const greeting = firstName ? `Pozdrav, ${escapeHtml(vokativ(firstName))}!` : 'Pozdrav!';
     const subtitle = inRace
-      ? 'Bravo, osvojio/la si nagradu! Nastavi - <strong>top 3 na ljestvici</strong> osvajaju i glavne nagrade. Svaka nova prijava te gura prema vrhu.'
+      ? 'Bravo, doveo/la si 5 prijava i osvojio/la si nagradu! Slobodno nastavi dijeliti link.'
       : (count === 0
           ? `Dovedi <strong>${THRESHOLD} osoba</strong> preko svog linka i osvoji nagradu. Kreni, treba ti samo jedan klik na „Kopiraj“.`
           : `Još <strong>${remaining} ${plural(remaining)}</strong> i osvajaš nagradu. Skoro si tu.`);
@@ -446,18 +356,11 @@
       ? `<div class="progress-num"><span class="count">${count}</span></div>`
       : `<div class="progress-num"><span class="count">${count}</span><span class="sep">/</span><span class="total">${THRESHOLD}</span></div>`;
 
-    const sideBlock = inRace && myRank
-      ? `<div class="progress-rank"><span class="rank-big">#${myRank}</span><span class="rank-cap">tvoje mjesto</span></div>`
-      : '';
-
     const barBlock = inRace
       ? `<span class="race-pill" style="margin-top:18px"><span class="dot"></span>Nagrada osvojena</span>`
       : `<div class="progress-bar"><div class="progress-fill" id="pfill"></div></div>`;
 
     const caption = inRace ? 'prijava preko tvog linka' : 'prijava do nagrade';
-
-    const prizesBlock = renderPrizes(myRank, inRace);
-    const leaderboardBlock = renderLeaderboard(board, myRank, count);
 
     app.innerHTML = `
       <div class="hero">
@@ -469,7 +372,6 @@
         <div class="card-label">Tvoje prijave</div>
         <div class="progress-row">
           ${numBlock}
-          ${sideBlock}
         </div>
         <div class="progress-caption">${caption}</div>
         ${barBlock}
@@ -484,74 +386,18 @@
         <div class="share-hint">Podijeli ga gdje god možeš. Svaka prijava preko ovog linka računa se tebi.</div>
       </div>
 
-      ${prizesBlock}
-
       <div class="card">
         <div class="card-label">Ljudi koje si doveo/la (${count})</div>
         ${referrals.length === 0
           ? `<div class="empty">Još nitko. Podijeli link iznad i prati kako broj raste.</div>`
           : `<ul class="ref-list">${referrals.map(renderRefItem).join('')}</ul>`}
       </div>
-
-      ${leaderboardBlock}
     `;
 
     document.getElementById('copyBtn').addEventListener('click', onCopy);
     document.getElementById('shareInput').addEventListener('click', (e) => e.target.select());
     const fill = document.getElementById('pfill');
     if (fill) requestAnimationFrame(() => { fill.style.width = pct + '%'; });
-  }
-
-  function renderPrizes(myRank, inRace) {
-    const rows = PRIZES.map((p) => {
-      const mine = inRace && myRank === p.place;
-      return `
-        <li class="prize-item ${mine ? 'is-mine' : ''}">
-          <div class="prize-badge">${p.place}</div>
-          <div>
-            <div class="prize-place">${p.place}. mjesto${mine ? ' · trenutno ti' : ''}</div>
-            <div class="prize-text">${escapeHtml(p.text)}</div>
-          </div>
-        </li>`;
-    }).join('');
-    return `
-      <div class="card">
-        <div class="card-label">Glavne nagrade · Top 3 na ljestvici</div>
-        <ul class="prize-list">${rows}</ul>
-      </div>`;
-  }
-
-  function renderLeaderboard(board, myRank, myCount) {
-    if (!board || board.length === 0) return '';
-
-    const rows = board.map((r) => {
-      const isMe = r.is_me === true;
-      const top3 = r.rank <= 3;
-      const name = [r.first_name, r.last_name].filter(Boolean).join(' ') || '-';
-      return `
-        <li class="lb-item ${isMe ? 'me' : ''} ${top3 ? 'top-3' : ''}">
-          <div class="lb-rank">${r.rank}</div>
-          <div>
-            <div class="lb-name">${escapeHtml(name)}</div>
-            <div class="lb-email">${escapeHtml(r.email || '')}</div>
-          </div>
-          <div>
-            <span class="lb-count">${r.referral_count}</span><span class="lb-count-label">${plural(Number(r.referral_count))}</span>
-          </div>
-        </li>`;
-    }).join('');
-
-    const showMyPosition = myRank != null && myRank > board.length;
-    const foot = showMyPosition
-      ? `<div class="lb-foot">Ti si <span class="highlight">#${myRank}</span> s ${myCount} ${plural(myCount)}. Penji se prema top 3, nije kasno.</div>`
-      : '';
-
-    return `
-      <div class="card">
-        <div class="card-label">Ljestvica · Top ${board.length}</div>
-        <ul class="lb-list">${rows}</ul>
-        ${foot}
-      </div>`;
   }
 
   function renderRefItem(r) {
