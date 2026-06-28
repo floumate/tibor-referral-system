@@ -7,7 +7,7 @@
 //   SUPABASE_URL         (npr. https://qdllfhjlibyvwntwknkg.supabase.co)
 //   SUPABASE_SECRET_KEY  (sb_secret_... — server-only, NIKAD u frontend)
 //   WEBINAR_LANDING_URL  (fallback landing URL za share link)
-//   DASHBOARD_BASE_URL   (npr. https://tibor-referral-system.vercel.app)
+//   DASHBOARD_BASE_URL   (npr. https://uzivo-trening.vercel.app)
 //
 // ENV VARS OPCIONO — GHL integracija (ako GHL_API_TOKEN/GHL_LOCATION_ID nisu postavljeni, preskače se):
 //   GHL_API_TOKEN        (Private Integration token, pit-...)

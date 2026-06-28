@@ -20,7 +20,7 @@ const ALLOWED_ORIGINS = [
   'https://uzivotrening.editunovac.com',
   'https://editunovac.com',
   'https://www.editunovac.com',
-  'https://tibor-referral-system.vercel.app',
+  'https://uzivo-trening.vercel.app',
 ];
 
 // Sonnet umjesto Haiku-a: Haiku na hrvatskom pri temperature 1 pravi tipfelere

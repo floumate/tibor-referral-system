@@ -4,7 +4,7 @@
   pejstuj ceo ovaj fajl. Save + Publish.
 
   Sta radi:
-  - Ubaci kviz (https://tibor-referral-system.vercel.app/kviz) kao iframe.
+  - Ubaci kviz (https://uzivo-trening.vercel.app/kviz) kao iframe.
   - FULL-BLEED: probija GHL kolonu i zauzima celu sirinu viewporta
     (width:100vw + margin-left:calc(50% - 50vw)), minimum ceo ekran visine.
   - Ofarba celu stranicu u tamnu boju kviza (#05000F) - nema belih ivica.
@@ -23,7 +23,7 @@
 </div>
 <script>
 (function () {
-  var BASE = 'https://tibor-referral-system.vercel.app/kviz';
+  var BASE = 'https://uzivo-trening.vercel.app/kviz';
   var frame = document.getElementById('eu-kviz-frame');
   var wrap = document.getElementById('eu-kviz-wrap');
 
@@ -60,7 +60,7 @@
   frame.src = src;
 
   window.addEventListener('message', function (e) {
-    if (e.origin !== 'https://tibor-referral-system.vercel.app') return;
+    if (e.origin !== 'https://uzivo-trening.vercel.app') return;
     var d = e.data || {};
     if (d.euKvizHeight) {
       // nikad manje od celog ekrana

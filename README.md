@@ -62,9 +62,9 @@ snippets/thankyou-embed.html   ← GHL Thank You step → custom HTML/JS element
    | `SUPABASE_URL` | `https://qdllfhjlibyvwntwknkg.supabase.co` |
    | `SUPABASE_SECRET_KEY` | `sb_secret_...` (iz Supabase Settings → API keys) |
    | `WEBINAR_LANDING_URL` | `https://uzivotrening.editunovac.com/optin-970758` |
-   | `DASHBOARD_BASE_URL` | deploy URL (npr. `https://tibor-referral-system.vercel.app`) |
+   | `DASHBOARD_BASE_URL` | deploy URL (npr. `https://uzivo-trening.vercel.app`) |
 
-3. Deploy. Proveri stvarni deploy URL - ako NIJE `tibor-referral-system.vercel.app`,
+3. Deploy. Proveri stvarni deploy URL - ako NIJE `uzivo-trening.vercel.app`,
    ažuriraj `CONFIG.apiUrl` i `CONFIG.dashboardBaseUrl` u `snippets/thankyou-embed.html`
    i `DASHBOARD_BASE_URL` env var.
 
